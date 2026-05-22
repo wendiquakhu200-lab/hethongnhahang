@@ -16,7 +16,7 @@
 ## 📸 Demo hệ thống
 
 <p align="center">
-  <img src="./public/demo.png" width="90%">
+<img src="https://raw.githubusercontent.com/wendiquakhu200-lab/hethongnhahang/main/du_an/public/images/demo.png" width="90%">
 </p>
 
 ---

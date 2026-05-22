@@ -16,7 +16,7 @@
 ## 📸 Demo hệ thống
 
 <p align="center">
-  <img src="https://via.placeholder.com/800x400.png?text=Restaurant+System+Preview" width="80%">
+  <img src="./public/demo.png" width="90%">
 </p>
 
 ---

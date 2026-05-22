@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Thu Ngân · POS</title>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root {
+  --bg:        #0d0b0d;
+  --bg2:       #111011;
+  --bg3:       #191619;
+
+  --panel:     #141114;
+  --panel2:    #1c191c;
+  --panel3:    #222022;
+
+  --line:      rgba(255,255,255,.06);
+  --line2:     rgba(255,255,255,.10);
+  --line3:     rgba(255,255,255,.18);
+
+  --ink:       #f0ead8;
+  --ink2:      #a89880;
+  --ink3:      #5c5040;
+
+  --gold:      #f5a623;
+  --gold-dim:  rgba(245,166,35,.12);
+  --gold-mid:  rgba(245,166,35,.25);
+  --gold-glow: rgba(245,166,35,.35);
+
+  --green:     #4ade80;
+  --green-bg:  rgba(74,222,128,.1);
+  --green-bd:  rgba(74,222,128,.22);
+
+  --amber:     #fbbf24;
+  --amber-bg:  rgba(251,191,36,.08);
+  --amber-bd:  rgba(251,191,36,.2);
+
+  --red:       #f87171;
+  --red-bg:    rgba(248,113,113,.1);
+  --red-bd:    rgba(248,113,113,.22);
+
+  --blue:      #60a5fa;
+  --blue-bg:   rgba(96,165,250,.1);
+
+  --sans:  'Plus Jakarta Sans', sans-serif;
+  --head:  'Syne', sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+
+  --r:   8px;
+  --r2:  14px;
+  --r3:  20px;
+
+  --sh1: 0 1px 4px rgba(0,0,0,.5);
+  --sh2: 0 8px 32px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4);
+  --sh3: 0 24px 64px rgba(0,0,0,.7), 0 4px 16px rgba(0,0,0,.5);
+  --glow-gold: 0 0 20px rgba(245,166,35,.2), 0 4px 16px rgba(245,166,35,.1);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family:var(--sans);
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  font-size:14px;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 10% 0%, rgba(245,166,35,.05), transparent 60%),
+    radial-gradient(ellipse 40% 40% at 90% 100%, rgba(245,166,35,.03), transparent 50%);
+}
+button { font-family:var(--sans); cursor:pointer; }
+
+::-webkit-scrollbar { width:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(245,166,35,.15); border-radius:2px; }
+
+header {
+  height:58px;
+  background:var(--panel);
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 22px;
+  position:sticky; top:0; z-index:100;
+  box-shadow:0 1px 0 var(--line), var(--sh1);
+}
+
+.logo {
+  display:flex; align-items:center; gap:12px;
+  font-family:var(--head);
+  font-size:17px; font-weight:800; letter-spacing:.4px;
+  color:var(--ink);
+}
+.logo-mark {
+  width:34px; height:34px; border-radius:10px;
+  background:linear-gradient(135deg, #f0a832 0%, #e08b1a 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; box-shadow:var(--glow-gold);
+  position:relative; overflow:hidden;
+}
+.logo-mark::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:50%;
+  background:rgba(255,255,255,.15); border-radius:10px 10px 0 0;
+}
+.logo span { color:var(--gold); }
+
+.header-right { display:flex; gap:8px; align-items:center; }
+
+.time-badge {
+  font-family:var(--mono);
+  font-size:13px; font-weight:500;
+  color:var(--ink2);
+  background:var(--bg3);
+  padding:7px 14px; border-radius:999px;
+  border:1px solid var(--line2);
+  letter-spacing:.08em;
+}
+
+.btn-hdr {
+  height:34px; padding:0 14px;
+  border-radius:var(--r);
+  border:1px solid var(--line2);
+  font-size:12px; font-weight:600;
+  transition:all .15s;
+  display:flex; align-items:center; gap:6px;
+  background:var(--panel2); color:var(--ink2);
+}
+.btn-hdr:hover { background:var(--panel3); color:var(--ink); border-color:var(--line3); }
+.btn-hdr-excel {
+  background:var(--green-bg); color:var(--green);
+  border-color:var(--green-bd);
+}
+.btn-hdr-excel:hover { background:rgba(52,211,153,.16); }
+
+.layout { display:flex; height:calc(100vh - 58px); }
+
+.tables-panel {
+  width:220px; flex-shrink:0;
+  background:var(--panel);
+  border-right:1px solid var(--line);
+  overflow-y:auto; padding:16px 10px;
+}
+
+.panel-label {
+  font-size:9px; font-weight:800; text-transform:uppercase;
+  letter-spacing:2px; color:var(--ink3);
+  margin-bottom:12px; padding:0 8px;
+}
+
+.t-item {
+  padding:11px 12px; border-radius:var(--r);
+  margin-bottom:4px;
+  border:1px solid transparent;
+  transition:all .15s;
+  display:flex; align-items:center; gap:10px;
+}
+.t-item:hover { background:var(--panel2); border-color:var(--line); cursor:pointer; }
+.t-item.active {
+  background:var(--gold-dim);
+  border-color:var(--gold-mid);
+}
+.t-item.empty { opacity:.35; pointer-events:none; }
+
+.t-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.t-dot.busy { background:var(--gold); box-shadow:0 0 8px var(--gold-glow); }
+.t-dot.free { background:var(--ink3); }
+
+.t-info { flex:1; min-width:0; }
+.t-name { font-size:13px; font-weight:700; color:var(--ink); }
+.t-sub { font-size:11px; color:var(--ink3); margin-top:2px; font-family:var(--mono); }
+.t-item.active .t-sub { color:var(--gold); }
+
+.bill-panel {
+  flex:1; overflow-y:auto;
+  padding:28px 32px;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+}
+
+.no-order {
+  height:100%; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:16px;
+}
+.no-order-icon {
+  width:72px; height:72px; border-radius:20px;
+  background:var(--panel);
+  border:1px solid var(--line2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:28px; color:var(--ink3);
+  box-shadow:var(--sh2);
+}
+.no-order p { font-size:14px; color:var(--ink3); }
+
+.receipt {
+  background:var(--panel);
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  overflow:hidden;
+  max-width:560px; width:100%;
+  box-shadow:var(--sh2);
+  animation:slideUp .25s ease;
+}
+
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.receipt-header {
+  padding:22px 26px;
+  border-bottom:1px solid var(--line);
+  display:flex; align-items:flex-start; justify-content:space-between;
+  background:var(--panel2);
+  position:relative; overflow:hidden;
+}
+.receipt-header::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, var(--gold), transparent 60%);
+}
+.receipt-title {
+  font-family:var(--head);
+  font-size:20px; font-weight:800; color:var(--ink); letter-spacing:-.2px;
+}
+.receipt-meta { font-size:11px; color:var(--ink3); margin-top:5px; font-family:var(--mono); }
+.receipt-badge {
+  background:var(--gold-dim); color:var(--gold);
+  border:1px solid var(--gold-mid);
+  font-size:11px; font-weight:700;
+  padding:5px 11px; border-radius:6px;
+  font-family:var(--mono); letter-spacing:.05em;
+}
+
+.receipt-body { padding:22px 26px; }
+
+.section-label {
+  font-size:9px; font-weight:800; text-transform:uppercase;
+  letter-spacing:2px; color:var(--ink3);
+  margin-bottom:14px; display:flex; align-items:center; gap:10px;
+}
+.section-label::after { content:''; flex:1; height:1px; background:var(--line); }
+
+.oi-row {
+  display:flex; align-items:center; gap:10px;
+  padding:11px 0; border-bottom:1px solid var(--line);
+  transition:background .1s;
+}
+.oi-row:last-child { border-bottom:none; }
+.oi-row:hover { background:rgba(245,166,35,.03); border-radius:var(--r); padding-left:6px; padding-right:6px; margin:0 -6px; }
+
+.oi-qty {
+  font-size:11px; font-weight:700;
+  width:28px; height:28px; border-radius:8px;
+  background:var(--bg3); border:1px solid var(--line2);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--gold); flex-shrink:0; font-family:var(--mono);
+}
+.oi-info { flex:1; min-width:0; }
+.oi-name { font-size:13px; font-weight:600; color:var(--ink); }
+.oi-note { font-size:11px; color:var(--ink3); margin-top:2px; }
+.oi-price {
+  font-size:13px; font-weight:700; color:var(--ink);
+  flex-shrink:0; font-family:var(--mono);
+}
+
+.btn-move-table {
+  height:32px; padding:0 12px;
+  background:var(--gold-dim); border:1px solid var(--gold-mid);
+  border-radius:var(--r); font-size:12px; font-weight:700;
+  color:var(--gold); cursor:pointer; transition:all .15s;
+  display:flex; align-items:center; gap:6px;
+}
+.btn-move-table:hover { background:var(--gold); color:#1a0f00; transform:translateY(-1px); }
+
+.move-table-item {
+  padding:12px 8px; border-radius:var(--r);
+  border:1px solid var(--line2);
+  background:var(--panel2);
+  font-size:13px; font-weight:700; color:var(--ink);
+  cursor:pointer; transition:all .15s; text-align:center;
+}
+.move-table-item:hover {
+  background:var(--gold-dim); border-color:var(--gold-mid);
+  color:var(--gold); transform:translateY(-2px);
+  box-shadow:0 4px 12px var(--gold-dim);
+}
+
+.tab-nav {
+  display:flex; gap:0;
+  border-bottom:1px solid var(--line);
+  background:var(--panel2);
+}
+.tab-btn {
+  flex:1; height:44px;
+  background:none; border:none;
+  font-size:13px; font-weight:700;
+  color:var(--ink3); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  border-bottom:2px solid transparent;
+  transition:all .15s; margin-bottom:-1px;
+}
+.tab-btn:hover { color:var(--ink); background:rgba(245,166,35,.03); }
+.tab-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+.top-actions { display:flex; gap:10px; margin-bottom:16px; }
+.section-label-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.kitchen-btn-inline {
+  height:30px; padding:0 14px;
+  background:var(--panel3); border:1px solid var(--line2);
+  border-radius:var(--r); font-size:12px; font-weight:700;
+  font-family:var(--sans); color:var(--ink2);
+  cursor:pointer; transition:all .15s;
+  display:flex; align-items:center; gap:6px; white-space:nowrap;
+}
+.kitchen-btn-inline:hover {
+  background:var(--green-bg); color:var(--green);
+  border-color:var(--green-bd); transform:translateY(-1px);
+}
+.badge-done {
+  font-size:10px; font-weight:700; padding:3px 9px; border-radius:5px;
+  background:var(--green-bg); color:var(--green);
+  border:1px solid var(--green-bd);
+}
+.btn-done-item {
+  background:var(--panel3); border:1px solid var(--line2);
+  border-radius:6px; padding:4px 10px;
+  font-size:11px; font-weight:600; color:var(--ink2);
+  transition:all .15s;
+}
+.btn-done-item:hover {
+  background:var(--green-bg); color:var(--green);
+  border-color:var(--green-bd);
+}
+.btn-del {
+  background:none; border:none; color:var(--ink3);
+  font-size:14px; padding:3px;
+  border-radius:6px; transition:all .15s;
+  display:flex; align-items:center;
+  width:26px; height:26px; justify-content:center;
+}
+.btn-del:hover { color:var(--red); background:var(--red-bg); }
+
+.total-section { border-top:1px solid var(--line); padding-top:16px; margin-top:6px; }
+.total-row {
+  display:flex; justify-content:space-between;
+  font-size:13px; margin-bottom:9px;
+}
+.total-row .l { color:var(--ink3); }
+.total-row .r { color:var(--ink2); font-weight:500; font-family:var(--mono); }
+
+.grand-total {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:16px 20px; border-radius:var(--r2);
+  background:linear-gradient(135deg, #1e1a0e 0%, #252010 100%);
+  border:1px solid var(--gold-mid);
+  margin-top:12px;
+  box-shadow:var(--glow-gold);
+  position:relative; overflow:hidden;
+}
+.grand-total::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, var(--gold), transparent 50%);
+}
+.grand-total .l { font-size:11px; font-weight:700; color:var(--ink3); letter-spacing:.1em; text-transform:uppercase; }
+.grand-total .r { font-size:26px; font-weight:800; color:var(--gold); font-family:var(--mono); letter-spacing:-.02em; }
+
+.cash-section {
+  background:var(--bg3);
+  border-radius:var(--r2);
+  border:1px solid var(--line);
+  padding:18px; margin-top:18px;
+}
+
+.quick-amounts { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.qa-btn {
+  padding:6px 13px;
+  background:var(--panel); border:1px solid var(--line2);
+  border-radius:var(--r); font-size:12px; font-weight:700;
+  color:var(--ink2); transition:all .15s;
+  font-family:var(--mono);
+}
+.qa-btn:hover { background:var(--gold); color:#1a0f00; border-color:var(--gold); box-shadow:var(--glow-gold); }
+
+.cash-row { display:flex; gap:10px; align-items:center; margin-bottom:10px; }
+.cash-label { font-size:12px; color:var(--ink3); width:80px; flex-shrink:0; font-weight:600; letter-spacing:.03em; }
+.cash-input {
+  flex:1; background:var(--panel2);
+  border:1px solid var(--line2); border-radius:var(--r);
+  padding:10px 14px;
+  font-size:15px; font-weight:700;
+  font-family:var(--mono);
+  color:var(--ink); outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.cash-input:focus { border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-dim); }
+.cash-input::placeholder { color:var(--ink3); font-weight:400; }
+
+.change-row {
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--green-bg); border:1px solid var(--green-bd);
+  border-radius:var(--r); padding:11px 16px;
+  animation:fadeIn .2s ease;
+}
+.change-row .l { font-size:12px; font-weight:700; color:var(--green); }
+.change-row .r { font-size:17px; font-weight:800; color:var(--green); font-family:var(--mono); }
+.change-row.neg { background:var(--red-bg); border-color:var(--red-bd); }
+.change-row.neg .l, .change-row.neg .r { color:var(--red); }
+
+@keyframes fadeIn { from { opacity:0; transform:scale(.98); } to { opacity:1; transform:scale(1); } }
+
+.action-btns { display:flex; gap:10px; margin-top:18px; }
+.btn-pay {
+  flex:2; padding:15px;
+  background:linear-gradient(135deg, #f0a832, #e08b1a);
+  color:#1a0f00;
+  border:none; border-radius:var(--r2);
+  font-size:14px; font-weight:800;
+  transition:all .2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:var(--glow-gold);
+  letter-spacing:.01em; font-family:var(--sans);
+}
+.btn-pay:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(245,166,35,.4); }
+.btn-pay:active { transform:translateY(0); }
+
+.btn-print {
+  flex:1; padding:15px;
+  background:var(--panel2); color:var(--ink2);
+  border:1px solid var(--line2); border-radius:var(--r2);
+  font-size:14px; font-weight:600;
+  transition:all .15s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-print:hover { background:var(--panel3); color:var(--ink); border-color:var(--line3); }
+
+.stats-panel {
+  width:196px; flex-shrink:0;
+  background:var(--panel);
+  border-left:1px solid var(--line);
+  padding:16px 12px; overflow-y:auto;
+}
+
+.stat-card {
+  background:var(--bg3);
+  border:1px solid var(--line);
+  border-radius:var(--r); padding:16px; margin-bottom:8px;
+  transition:border-color .15s;
+}
+.stat-card:hover { border-color:rgba(245,166,35,.2); }
+.stat-card .sv {
+  font-size:24px; font-weight:800;
+  font-family:var(--mono);
+  color:var(--gold); margin-bottom:4px; letter-spacing:-.03em;
+}
+.stat-card .sl { font-size:11px; color:var(--ink3); font-weight:600; letter-spacing:.03em; }
+
+.modal-overlay {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.8); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:500; opacity:0; pointer-events:none;
+  transition:opacity .25s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+
+#stats-modal .modal {
+  background:var(--panel);
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  padding:28px; width:640px;
+  max-width:95vw; max-height:90vh; overflow-y:auto;
+  transform:scale(.95) translateY(10px); transition:transform .25s;
+  box-shadow:var(--sh3);
+}
+#stats-modal.open .modal { transform:scale(1) translateY(0); }
+#stats-modal .modal-header {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:20px;
+}
+#stats-modal .modal-title {
+  font-family:var(--head);
+  font-size:18px; font-weight:800; color:var(--ink); letter-spacing:-.2px;
+}
+#stats-modal .modal-close {
+  background:var(--bg3); border:1px solid var(--line2);
+  width:32px; height:32px; border-radius:9px;
+  font-size:15px; color:var(--ink3);
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+#stats-modal .modal-close:hover { color:var(--ink); border-color:var(--line3); }
+
+#pay-confirm-modal .modal {
+  background:var(--panel);
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  width:380px; max-width:95vw;
+  overflow:hidden;
+  transform:scale(.95) translateY(10px); transition:transform .25s;
+  box-shadow:var(--sh3);
+}
+#pay-confirm-modal.open .modal { transform:scale(1) translateY(0); }
+#pay-confirm-modal .modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 24px; border-bottom:1px solid var(--line);
+  background:var(--panel2);
+}
+.modal-icon {
+  width:34px; height:34px; border-radius:10px;
+  background:var(--green-bg); border:1px solid var(--green-bd);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--green); font-size:17px;
+}
+.modal-title { font-size:15px; font-weight:700; color:var(--ink); }
+.modal-close {
+  background:var(--bg3); border:1px solid var(--line2);
+  width:30px; height:30px; border-radius:8px;
+  font-size:14px; color:var(--ink3);
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s;
+}
+.modal-close:hover { color:var(--ink); }
+.modal-body { padding:20px 24px; }
+.modal-notice {
+  display:flex; align-items:flex-start; gap:12px;
+  background:var(--amber-bg); border:1px solid var(--amber-bd);
+  border-radius:var(--r); padding:14px;
+}
+.modal-notice i { font-size:17px; color:var(--amber); flex-shrink:0; margin-top:1px; }
+.modal-notice p { margin:0; font-size:13px; color:var(--ink2); line-height:1.6; }
+.modal-footer { display:flex; gap:10px; padding:0 24px 22px; }
+.btn-cancel {
+  flex:1; padding:12px;
+  background:var(--bg3); border:1px solid var(--line2);
+  border-radius:var(--r); font-size:13px; font-weight:600;
+  color:var(--ink2); transition:all .15s;
+  display:flex; align-items:center; justify-content:center;
+}
+.btn-cancel:hover { background:var(--panel3); color:var(--ink); }
+.btn-confirm {
+  flex:1; padding:12px;
+  background:linear-gradient(135deg, #f0a832, #e08b1a);
+  border:none;
+  border-radius:var(--r); font-size:13px; font-weight:800;
+  color:#1a0f00;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  box-shadow:var(--glow-gold);
+  transition:all .15s;
+}
+.btn-confirm:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(245,166,35,.35); }
+
+.date-row { display:flex; gap:8px; margin-bottom:18px; align-items:center; flex-wrap:wrap; }
+.date-row input {
+  background:var(--bg3); border:1px solid var(--line2);
+  border-radius:var(--r); padding:8px 12px;
+  font-family:var(--sans); font-size:13px; color:var(--ink); outline:none;
+  transition:border-color .2s;
+}
+.date-row input:focus { border-color:var(--gold); }
+
+.btn-sm {
+  padding:8px 15px; border-radius:var(--r); border:1px solid var(--line2);
+  font-size:12.5px; font-weight:600;
+  background:var(--panel2); color:var(--ink2);
+  transition:all .15s;
+}
+.btn-sm:hover { background:var(--panel3); color:var(--ink); }
+.btn-sm-accent { background:linear-gradient(135deg,#f0a832,#e08b1a); color:#1a0f00; border-color:transparent; font-weight:800; }
+.btn-sm-accent:hover { transform:translateY(-1px); box-shadow:var(--glow-gold); }
+.btn-sm-green {
+  background:var(--green-bg); color:var(--green);
+  border-color:var(--green-bd);
+  display:flex; align-items:center; gap:5px;
+}
+.btn-sm-green:hover { background:rgba(52,211,153,.16); }
+
+.sc-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:18px; }
+.sc {
+  background:var(--bg3); border:1px solid var(--line);
+  border-radius:var(--r); padding:16px; text-align:center;
+}
+.sc .v { font-size:21px; font-weight:800; font-family:var(--mono); margin-bottom:4px; }
+.sc .l { font-size:11px; color:var(--ink3); font-weight:600; letter-spacing:.03em; }
+.sc.blue .v { color:var(--blue); }
+.sc.orange .v { color:var(--gold); }
+.sc.green .v { color:var(--green); }
+
+.data-table { width:100%; border-collapse:collapse; font-size:13px; }
+.data-table th {
+  text-align:left; padding:9px 12px;
+  font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:1.2px;
+  color:var(--ink3); border-bottom:1px solid var(--line2);
+}
+.data-table td {
+  padding:11px 12px; border-bottom:1px solid var(--line);
+  color:var(--ink2); font-family:var(--mono); font-size:12px;
+}
+.data-table td:first-child { font-family:var(--sans); color:var(--ink); font-size:13px; }
+.data-table td:last-child { font-weight:700; color:var(--gold); }
+.data-table tr:hover td { background:rgba(245,166,35,.03); }
+.no-data { text-align:center; padding:32px; color:var(--ink3); }
+
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:var(--panel2); color:var(--ink);
+  border:1px solid var(--line2);
+  padding:12px 20px; border-radius:var(--r2);
+  font-size:13px; font-weight:600;
+  transform:translateY(60px); opacity:0;
+  transition:all .35s cubic-bezier(.34,1.56,.64,1);
+  z-index:9999; box-shadow:var(--sh2);
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.ok {
+  background:var(--panel);
+  color:var(--green);
+  border-color:var(--green-bd);
+}
+
+#login-screen {
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999; background:var(--bg);
+}
+#login-screen::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 5%, rgba(245,166,35,.10), transparent 65%);
+  pointer-events:none;
+}
+
+.login-box {
+  width:340px; padding:40px 32px;
+  background:var(--panel);
+  border:1px solid rgba(245,166,35,.18);
+  border-radius:var(--r3);
+  text-align:center; position:relative;
+  box-shadow:var(--sh3);
+  animation:loginIn .35s ease;
+}
+@keyframes loginIn { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+
+.login-logo {
+  font-family:var(--head);
+  font-size:28px; font-weight:800;
+  letter-spacing:.3px; margin-bottom:6px; color:var(--ink);
+  display:flex; align-items:center; justify-content:center; gap:10px;
+}
+.login-logo .lmark {
+  width:36px; height:36px; border-radius:10px;
+  background:linear-gradient(135deg,#f0a832,#e08b1a);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; box-shadow:var(--glow-gold);
+}
+.login-logo span { color:var(--gold); }
+
+.login-sub { font-size:13px; color:var(--ink3); margin-bottom:32px; }
+.login-label {
+  font-size:9px; font-weight:800; text-transform:uppercase;
+  letter-spacing:2px; color:var(--ink3); margin-bottom:16px;
+}
+
+.pin-dots { display:flex; justify-content:center; gap:14px; margin-bottom:28px; }
+.pin-dot {
+  width:14px; height:14px; border-radius:50%;
+  background:var(--bg3); border:2px solid var(--line2);
+  transition:all .2s cubic-bezier(.34,1.56,.64,1);
+}
+.pin-dot.active {
+  background:var(--gold); border-color:var(--gold);
+  box-shadow:0 0 16px var(--gold-glow);
+  transform:scale(1.15);
+}
+
+.pin-numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+.pin-key {
+  height:60px; border:1px solid var(--line2); border-radius:var(--r2);
+  background:var(--bg3); color:var(--ink);
+  font-size:22px; font-weight:700; font-family:var(--sans);
+  transition:all .12s;
+}
+.pin-key:hover { background:var(--gold-dim); border-color:var(--gold-mid); color:var(--gold); }
+.pin-key:active { transform:scale(.93); background:var(--gold); color:#1a0f00; border-color:var(--gold); }
+.pin-key.del { color:var(--ink3); font-size:15px; }
+.pin-key.del:hover { background:var(--red-bg); color:var(--red); border-color:var(--red-bd); }
+
+.pin-error { color:var(--red); font-size:12px; margin-top:16px; min-height:18px; font-weight:700; }
+
+body.locked .layout, body.locked header {
+  filter:blur(10px) brightness(.5); pointer-events:none; user-select:none;
+}
+
+@media print {
+  body * { visibility:hidden; }
+  #print-area, #print-area * { visibility:visible; }
+  #print-area {
+    position:fixed; top:0; left:0; width:80mm; padding:4mm;
+    font-family:'Courier New', monospace; font-size:12px; color:#000; background:#fff;
+  }
+  .pr-center { text-align:center; }
+  .pr-bold { font-weight:bold; }
+  .pr-big { font-size:15px; font-weight:bold; }
+  .pr-line { border-top:1px dashed #000; margin:5px 0; }
+  .pr-row { display:flex; justify-content:space-between; margin:2px 0; }
+  .pr-row .n { flex:1; overflow:hidden; }
+  .pr-row .p { flex-shrink:0; margin-left:6px; }
+  .pr-total { font-weight:bold; font-size:14px; }
+}
+
+@media(max-width:768px) {
+  .stats-panel { display:none; }
+  .tables-panel { width:160px; }
+}
+</style>
+</head>
+<body>
+
+<!-- MOVE TABLE MODAL -->
+<div class="modal-overlay" id="move-table-modal" onclick="if(event.target===this)closeMoveTable()">
+  <div class="modal" style="width:380px;max-width:95vw;background:var(--panel);border:1px solid var(--line2);border-radius:var(--r3);overflow:hidden;box-shadow:var(--sh3);transform:scale(.95) translateY(10px);transition:transform .25s">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line);background:var(--panel2)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--gold-dim);border:1px solid var(--gold-mid);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:17px">
+          <i class="ti ti-arrows-transfer-up"></i>
+        </div>
+        <span style="font-size:15px;font-weight:700;color:var(--ink)">Chuyển bàn</span>
+      </div>
+      <button class="modal-close" onclick="closeMoveTable()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="padding:20px 24px">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:14px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Chọn bàn trống</p>
+      <div id="move-table-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAY CONFIRM MODAL -->
+<div class="modal-overlay" id="pay-confirm-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="modal-icon"><i class="ti ti-receipt"></i></div>
+        <span class="modal-title">Xác nhận thanh toán</span>
+      </div>
+      <button class="modal-close" onclick="closePayModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-notice">
+        <i class="ti ti-alert-triangle"></i>
+        <p>Bạn có chắc muốn thanh toán hóa đơn này không? Hành động này không thể hoàn tác.</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closePayModal()">Hủy</button>
+      <button class="btn-confirm" id="confirm-pay-btn">
+        <i class="ti ti-check"></i> Xác nhận
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="print-area" style="display:none"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">💰</div>
+    THU <span>NGÂN</span>
+  </div>
+  <div class="header-right">
+    <button class="btn-hdr" onclick="openStats()">
+      <i class="ti ti-chart-bar" style="font-size:15px"></i> Doanh thu
+    </button>
+    <button class="btn-hdr btn-hdr-excel" onclick="exportTodayExcel()">
+      <i class="ti ti-download" style="font-size:15px"></i> Xuất Excel
+    </button>
+    <div class="time-badge" id="clock">--:--:--</div>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="tables-panel">
+    <div class="panel-label">Danh sách bàn</div>
+    <div id="table-list"></div>
+  </div>
+
+  <div class="bill-panel">
+    <div class="no-order" id="no-order">
+      <div class="no-order-icon"><i class="ti ti-receipt" style="font-size:28px"></i></div>
+      <p>Chọn bàn để xem hóa đơn</p>
+    </div>
+    <div id="receipt-container" style="display:none"></div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="panel-label" style="margin-bottom:14px">Hôm nay</div>
+    <div class="stat-card"><div class="sv" id="stat-tables">0</div><div class="sl">Bàn đang phục vụ</div></div>
+    <div class="stat-card"><div class="sv" id="stat-items">0</div><div class="sl">Món chờ bếp</div></div>
+    <div class="stat-card"><div class="sv" id="stat-revenue">—</div><div class="sl">Đã thu hôm nay</div></div>
+  </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal-overlay" id="stats-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📊 Thống kê doanh thu</div>
+      <button class="modal-close" onclick="closeModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="date-row">
+      <input type="date" id="stats-from"/>
+      <span style="color:var(--ink3);font-size:13px">đến</span>
+      <input type="date" id="stats-to"/>
+      <button class="btn-sm btn-sm-accent" onclick="loadStats()">Xem</button>
+      <button class="btn-sm btn-sm-green" onclick="exportExcelRange()">
+        <i class="ti ti-download"></i> Excel
+      </button>
+    </div>
+    <div class="sc-row" id="stats-cards"></div>
+    <table class="data-table">
+      <thead><tr><th>Ngày</th><th>Số đơn</th><th>Doanh thu</th><th>VAT</th><th>Tổng</th></tr></thead>
+      <tbody id="stats-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="lmark">💰</div>
+      THU <span>NGÂN</span>
+    </div>
+    <div class="login-sub">Nhập mã PIN để tiếp tục</div>
+    <div class="login-label">Mã PIN</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="b0"></div>
+      <div class="pin-dot" id="b1"></div>
+      <div class="pin-dot" id="b2"></div>
+      <div class="pin-dot" id="b3"></div>
+    </div>
+    <div class="pin-numpad">
+      <button class="pin-key" onclick="billPinPress('1')">1</button>
+      <button class="pin-key" onclick="billPinPress('2')">2</button>
+      <button class="pin-key" onclick="billPinPress('3')">3</button>
+      <button class="pin-key" onclick="billPinPress('4')">4</button>
+      <button class="pin-key" onclick="billPinPress('5')">5</button>
+      <button class="pin-key" onclick="billPinPress('6')">6</button>
+      <button class="pin-key" onclick="billPinPress('7')">7</button>
+      <button class="pin-key" onclick="billPinPress('8')">8</button>
+      <button class="pin-key" onclick="billPinPress('9')">9</button>
+      <button class="pin-key del" onclick="billPinClear()">⌫</button>
+      <button class="pin-key" onclick="billPinPress('0')">0</button>
+      <button class="pin-key del" onclick="billPinReset()">✕</button>
+    </div>
+    <div class="pin-error" id="login-error"></div>
+  </div>
+</div>
+
+<script>
+const socket = io();
+let allOrders=[], tables=[];
+let selectedTableId=null, cashInput=0;
+let statsData=[];
+
+setInterval(()=>document.getElementById('clock').textContent=new Date().toLocaleTimeString('vi-VN'),1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('vi-VN');
+
+async function init(){
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('stats-from').value=today;
+  document.getElementById('stats-to').value=today;
+  await Promise.all([loadTables(),loadOrders(),loadTodayRevenue()]);
+}
+async function loadTables(){tables=await fetch('/api/tables').then(r=>r.json());}
+async function loadOrders(){
+  allOrders=await fetch('/api/orders').then(r=>r.json());
+  renderTableList();updateStats();
+  if(selectedTableId)renderBill(selectedTableId);
+}
+async function loadTodayRevenue(){
+  const today=new Date().toISOString().slice(0,10);
+  try{
+    const data=await fetch(`/api/stats?from=${today}&to=${today}`).then(r=>r.json());
+    const total=data.reduce((s,d)=>s+Number(d.total),0);
+    document.getElementById('stat-revenue').textContent=total>0?fmtShort(total):'0đ';
+  }catch(e){}
+}
+
+function renderTableList(){
+  const c=document.getElementById('table-list');c.innerHTML='';
+  tables.forEach(t=>{
+    const order=allOrders.find(o=>o.table_id===t.id);
+    const pending=order?(order.items||[]).filter(i=>i.status!=='done').length:0;
+    const d=document.createElement('div');
+    d.className=`t-item${t.id===selectedTableId?' active':''}${!order?' empty':''}`;
+    d.innerHTML=`<div class="t-dot ${order?'busy':'free'}"></div>
+      <div class="t-info">
+        <div class="t-name">${t.name}</div>
+        <div class="t-sub">${order?fmt(order.items?.reduce((s,i)=>s+i.price*i.quantity,0)||0):'Trống'}</div>
+      </div>
+      ${pending>0?`<div style="min-width:20px;height:20px;border-radius:6px;background:var(--red-bg);border:1px solid var(--red-bd);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--red);padding:0 5px;flex-shrink:0">${pending}</div>`:''}`;
+    d.onclick=()=>{if(order){selectedTableId=t.id;renderTableList();renderBill(t.id);}};
+    c.appendChild(d);
+  });
+}
+
+function renderBill(tableId){
+  const order=allOrders.find(o=>o.table_id===tableId);
+  const table=tables.find(t=>t.id===tableId);
+  document.getElementById('no-order').style.display='none';
+  const c=document.getElementById('receipt-container');
+  c.style.display='block';
+  if(!order){c.innerHTML=`<div style="text-align:center;padding:40px;color:var(--ink3)">Bàn đang trống</div>`;return;}
+
+  const sub=order.items?.reduce((s,i)=>s+i.price*i.quantity,0)||0;
+  const tax=Math.round(sub*0.1);
+  const total=sub+tax;
+  const allDone=(order.items||[]).length>0 && (order.items||[]).every(i=>i.status==='done');
+
+  const items=(order.items||[]).map(item=>`
+    <div class="oi-row">
+      <div class="oi-qty">${item.quantity}</div>
+      <div class="oi-info">
+        <div class="oi-name">${item.name}</div>
+        ${item.note?`<div class="oi-note"><i class="ti ti-alert-triangle" style="color:var(--gold);font-size:11px;vertical-align:middle"></i> ${item.note}</div>`:''}
+      </div>
+      <div class="oi-price">${fmt(item.price*item.quantity)}</div>
+      <div>${item.status==='done'
+        ?`<span class="badge-done">✓ Xong</span>`
+        :`<button class="btn-done-item" onclick="markDone(${item.id})">Xong</button>`}</div>
+      <button class="btn-del" onclick="delItem(${item.id})"><i class="ti ti-x" style="font-size:13px"></i></button>
+    </div>`).join('');
+
+  const qAmounts=[50000,100000,200000,500000,1000000]
+    .map(a=>`<button class="qa-btn" onclick="setCash(${a},${total})">${a/1000}k</button>`).join('');
+
+  c.innerHTML=`
+    <div class="receipt">
+      <div class="receipt-header">
+        <div>
+          <div class="receipt-title">${table?.name||'Bàn'}</div>
+          <div class="receipt-meta">Đặt lúc: ${new Date(order.created_at).toLocaleTimeString('vi-VN')} · #${order.id}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn-move-table" onclick="openMoveTable(${order.id})">
+            <i class="ti ti-arrows-transfer-up"></i> Chuyển bàn
+          </button>
+          <div class="receipt-badge">#${order.id}</div>
+        </div>
+      </div>
+      <div class="tab-nav">
+        <button class="tab-btn active" id="tab-items" onclick="switchTab('items')">
+          <i class="ti ti-tools-kitchen-2"></i> Danh sách món
+        </button>
+        <button class="tab-btn" id="tab-pay" onclick="switchTab('pay')">
+          <i class="ti ti-credit-card"></i> Thanh toán
+        </button>
+      </div>
+      <div class="receipt-body">
+        <div id="section-items">
+          <div class="section-label-row">
+            <div class="section-label" style="margin-bottom:0;flex:1">Danh sách món</div>
+            ${!allDone?`<button class="kitchen-btn-inline" onclick="markAllDone(${order.id})">
+              <i class="ti ti-checks"></i> Hoàn thành món
+            </button>`:''}
+          </div>
+          ${items}
+        </div>
+        <div id="section-pay" style="display:none">
+          <div class="total-section" style="border-top:none;padding-top:0">
+            <div class="total-row"><span class="l">Tạm tính</span><span class="r">${fmt(sub)}</span></div>
+            <div class="total-row"><span class="l">VAT (10%)</span><span class="r">${fmt(tax)}</span></div>
+            <div class="grand-total"><span class="l">TỔNG CỘNG</span><span class="r">${fmt(total)}</span></div>
+          </div>
+          <div class="cash-section">
+            <div class="section-label">Thanh toán tiền mặt</div>
+            <div class="quick-amounts">${qAmounts}</div>
+            <div class="cash-row">
+              <span class="cash-label">Khách đưa</span>
+              <input type="number" class="cash-input" id="cash-in" placeholder="0"
+                oninput="calcChange(${total})" value="${cashInput||''}"/>
+            </div>
+            <div id="change-display"></div>
+          </div>
+          <div class="action-btns">
+            <button class="btn-print" onclick="printBill(${order.id})">
+              <i class="ti ti-printer"></i> In hóa đơn
+            </button>
+            <button class="btn-pay" onclick="confirmPayOrder(${order.id})">
+              <i class="ti ti-circle-check"></i> Thanh toán & Đóng bàn
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  if(cashInput)calcChange(total);
+}
+
+function switchTab(tab){
+  document.getElementById('section-items').style.display = tab==='items'?'block':'none';
+  document.getElementById('section-pay').style.display   = tab==='pay'?'block':'none';
+  document.getElementById('tab-items').classList.toggle('active', tab==='items');
+  document.getElementById('tab-pay').classList.toggle('active',   tab==='pay');
+  if(tab==='pay' && cashInput) calcChange(
+    (allOrders.find(o=>o.table_id===selectedTableId)?.items||[])
+      .reduce((s,i)=>s+i.price*i.quantity,0) * 1.1
+  );
+}
+
+function setCash(amount,total){
+  const inp=document.getElementById('cash-in');
+  if(!inp)return;inp.value=amount;cashInput=amount;calcChange(total);
+}
+function calcChange(total){
+  const inp=document.getElementById('cash-in');
+  const disp=document.getElementById('change-display');
+  if(!inp||!disp)return;
+  const rec=Number(inp.value)||0;cashInput=rec;
+  if(!rec){disp.innerHTML='';return;}
+  const ch=rec-total;
+  disp.innerHTML=`<div class="change-row ${ch<0?'neg':''}">
+    <span class="l">${ch>=0?'💵 Tiền thừa':'⚠ Còn thiếu'}</span>
+    <span class="r">${fmt(Math.abs(ch))}</span></div>`;
+}
+
+async function markAllDone(orderId){
+  const order=allOrders.find(o=>o.id===orderId);
+  if(!order)return;
+  const pending=(order.items||[]).filter(i=>i.status!=='done');
+  if(!pending.length){showToast('Tất cả món đã xong');return;}
+  await Promise.all(pending.map(i=>fetch(`/api/order-items/${i.id}/done`,{method:'PUT'})));
+  await loadOrders();showToast('✓ Đã hoàn thành tất cả món',true);
+}
+async function markDone(id){
+  await fetch(`/api/order-items/${id}/done`,{method:'PUT'});
+  await loadOrders();showToast('✓ Đã xong');
+}
+async function delItem(id){
+  if(!confirm('Xóa món này?'))return;
+  await fetch(`/api/order-items/${id}`,{method:'DELETE'});
+  await loadOrders();
+}
+async function payOrder(id){
+  const order=allOrders.find(o=>o.id===id);if(!order)return;
+  const sub=order.items?.reduce((s,i)=>s+i.price*i.quantity,0)||0;
+  const tax=Math.round(sub*0.1);const total=sub+tax;
+  const cash=Number(document.getElementById('cash-in')?.value||0);
+  if(cash<total){showToast('❌ Khách đưa chưa đủ tiền');return;}
+  await fetch(`/api/orders/${id}/pay`,{method:'PUT'});
+  selectedTableId=null;cashInput=0;
+  document.getElementById('no-order').style.display='flex';
+  document.getElementById('receipt-container').style.display='none';
+  await loadOrders();await loadTodayRevenue();
+  showToast('✅ Thanh toán thành công!',true);
+}
+
+function printBill(orderId){
+  const order=allOrders.find(o=>o.id===orderId);
+  const table=tables.find(t=>t.id===order?.table_id);
+  if(!order)return;
+  const sub=order.items?.reduce((s,i)=>s+i.price*i.quantity,0)||0;
+  const tax=Math.round(sub*0.1);const total=sub+tax;
+  const now=new Date();
+  const rows=(order.items||[]).map(i=>`
+    <div class="pr-row"><span class="n">${i.quantity}x ${i.name}</span><span class="p">${raw(i.price*i.quantity)}</span></div>
+    ${i.note?`<div style="font-size:10px;padding-left:10px">→ ${i.note}</div>`:''}`).join('');
+  document.getElementById('print-area').innerHTML=`
+    <div class="pr-center pr-big">🍜 NHÀ HÀNG</div>
+    <div class="pr-center" style="font-size:11px">ĐC: 越谷市花田2丁目</div>
+    <div class="pr-center" style="font-size:11px">ĐT: ０８０-５５５５-８８８８</div>
+    <div class="pr-line"></div>
+    <div class="pr-row"><span>Bàn:</span><span>${table?.name||''}</span></div>
+    <div class="pr-row"><span>Đơn #${order.id}</span><span>${now.toLocaleTimeString('vi-VN')}</span></div>
+    <div class="pr-line"></div>${rows}
+    <div class="pr-line"></div>
+    <div class="pr-row"><span>Tạm tính:</span><span>${raw(sub)}</span></div>
+    <div class="pr-row"><span>VAT 10%:</span><span>${raw(tax)}</span></div>
+    <div class="pr-line"></div>
+    <div class="pr-row pr-total"><span>TỔNG CỘNG:</span><span>${raw(total)}</span></div>
+    <div class="pr-line"></div>
+    <div class="pr-center" style="margin-top:6px">Cảm ơn quý khách!</div>`;
+  document.getElementById('print-area').style.display='block';
+  window.print();
+  setTimeout(()=>document.getElementById('print-area').style.display='none',500);
+}
+
+function openMoveTable(orderId){
+  const emptyTables=tables.filter(t=>!allOrders.find(o=>o.table_id===t.id));
+  if(!emptyTables.length){showToast('Không có bàn trống!');return;}
+  const list=document.getElementById('move-table-list');
+  list.innerHTML=emptyTables.map(t=>`
+    <button class="move-table-item" onclick="doMoveTable(${orderId},${t.id})">
+      <i class="ti ti-armchair" style="display:block;font-size:20px;margin-bottom:4px"></i>
+      ${t.name}
+    </button>`).join('');
+  document.getElementById('move-table-modal').classList.add('open');
+}
+function closeMoveTable(){document.getElementById('move-table-modal').classList.remove('open');}
+async function doMoveTable(orderId, newTableId){
+  await fetch(`/api/orders/${orderId}/move`,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({table_id:newTableId})
+  });
+  closeMoveTable();
+  selectedTableId=newTableId;
+  await loadTables(); await loadOrders();
+  showToast('✅ Đã chuyển bàn!',true);
+}
+
+function openStats(){document.getElementById('stats-modal').classList.add('open');loadStats();}
+function closeModal(){document.getElementById('stats-modal').classList.remove('open');}
+async function loadStats(){
+  const from=document.getElementById('stats-from').value;
+  const to=document.getElementById('stats-to').value;
+  if(!from||!to)return;
+  statsData=await fetch(`/api/stats?from=${from}&to=${to}`).then(r=>r.json());
+  renderStats();
+}
+function renderStats(){
+  const totOrders=statsData.reduce((s,d)=>s+Number(d.order_count),0);
+  const totSub=statsData.reduce((s,d)=>s+Number(d.subtotal),0);
+  const totAll=statsData.reduce((s,d)=>s+Number(d.total),0);
+  document.getElementById('stats-cards').innerHTML=`
+    <div class="sc blue"><div class="v">${totOrders}</div><div class="l">Số đơn</div></div>
+    <div class="sc orange"><div class="v">${fmtShort(totSub)}</div><div class="l">Doanh thu</div></div>
+    <div class="sc green"><div class="v">${fmtShort(totAll)}</div><div class="l">Tổng (có VAT)</div></div>`;
+  const tbody=document.getElementById('stats-tbody');
+  if(!statsData.length){tbody.innerHTML=`<tr><td colspan="5" class="no-data">Không có dữ liệu</td></tr>`;return;}
+  tbody.innerHTML=statsData.map(d=>`
+    <tr>
+      <td>${new Date(d.date).toLocaleDateString('vi-VN')}</td>
+      <td>${d.order_count}</td>
+      <td>${fmt(d.subtotal)}</td>
+      <td>${fmt(d.vat)}</td>
+      <td>${fmt(d.total)}</td>
+    </tr>`).join('');
+}
+
+async function exportTodayExcel(){
+  const today=new Date().toISOString().slice(0,10);
+  await doExport(today,today,`donhang_${today}.xlsx`);
+}
+async function exportExcelRange(){
+  const from=document.getElementById('stats-from').value;
+  const to=document.getElementById('stats-to').value;
+  await doExport(from,to,`doanhthu_${from}_${to}.xlsx`);
+}
+async function doExport(from,to,filename){
+  const data=await fetch(`/api/export?from=${from}&to=${to}`).then(r=>r.json());
+  if(!data.length){showToast('Không có dữ liệu');return;}
+  const wb=XLSX.utils.book_new();
+  const detail=[['Mã đơn','Bàn','Món','SL','Đơn giá','Thành tiền','Ghi chú','Thời gian']];
+  data.forEach(r=>detail.push([r.order_id,r.table_name,r.item_name,Number(r.quantity),Number(r.price),Number(r.price)*Number(r.quantity),r.note||'',new Date(r.created_at).toLocaleString('vi-VN')]));
+  const ws1=XLSX.utils.aoa_to_sheet(detail);
+  ws1['!cols']=[{wch:8},{wch:12},{wch:22},{wch:5},{wch:12},{wch:14},{wch:20},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Chi tiết đơn hàng');
+  if(statsData.length){
+    const summary=[['Ngày','Số đơn','Doanh thu','VAT','Tổng cộng']];
+    statsData.forEach(d=>summary.push([new Date(d.date+'T00:00:00').toLocaleDateString('vi-VN'),Number(d.order_count),Number(d.subtotal),Number(d.vat),Number(d.total)]));
+    const tot=statsData.reduce((s,d)=>({c:s.c+Number(d.order_count),sub:s.sub+Number(d.subtotal),vat:s.vat+Number(d.vat),tot:s.tot+Number(d.total)}),{c:0,sub:0,vat:0,tot:0});
+    summary.push(['TỔNG CỘNG',tot.c,tot.sub,tot.vat,tot.tot]);
+    const ws2=XLSX.utils.aoa_to_sheet(summary);
+    ws2['!cols']=[{wch:14},{wch:10},{wch:16},{wch:12},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws2,'Tổng hợp theo ngày');
+  }
+  XLSX.writeFile(wb,filename);showToast('✅ Xuất Excel thành công!',true);
+}
+
+function updateStats(){
+  document.getElementById('stat-tables').textContent=tables.filter(t=>t.status==='occupied').length;
+  document.getElementById('stat-items').textContent=allOrders.reduce((s,o)=>s+(o.items?.filter(i=>i.status==='pending').length||0),0);
+}
+socket.on('order_updated',async()=>{await loadTables();await loadOrders();await loadTodayRevenue();});
+
+function fmt(n){return Number(n).toLocaleString('vi-VN')+'đ';}
+function raw(n){return Number(n).toLocaleString('vi-VN')+'d';}
+function fmtShort(n){
+  if(n>=1e6)return(n/1e6).toFixed(1).replace('.0','')+'tr';
+  if(n>=1e3)return(n/1e3).toFixed(0)+'k';return n+'đ';
+}
+function showToast(msg,ok=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast show${ok?' ok':''}`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+document.body.classList.add('locked');
+init();
+let billPin='';
+
+function updateBillDots(){
+  for(let i=0;i<4;i++)document.getElementById(`b${i}`).classList.toggle('active',i<billPin.length);
+}
+function billPinPress(num){
+  if(billPin.length>=4)return;billPin+=num;updateBillDots();
+  if(billPin.length===4)loginBill();
+}
+function billPinClear(){billPin=billPin.slice(0,-1);updateBillDots();}
+function billPinReset(){billPin='';updateBillDots();}
+async function loginBill(){
+  const res=await fetch('/api/verify-bill-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:billPin})});
+  const data=await res.json();
+  if(data.ok){
+    document.getElementById('login-screen').style.display='none';
+    document.body.classList.remove('locked');
+    document.getElementById('login-error').innerText='';
+  }else{
+    document.getElementById('login-error').innerText='Sai mã PIN';
+  }
+  billPin='';updateBillDots();
+}
+
+function confirmPayOrder(orderId){
+  const modal=document.getElementById('pay-confirm-modal');
+  modal.classList.add('open');
+  const btn=document.getElementById('confirm-pay-btn');
+  btn.replaceWith(btn.cloneNode(true));
+  const newBtn=document.getElementById('confirm-pay-btn');
+  newBtn.onclick=async()=>{modal.classList.remove('open');await payOrder(orderId);};
+}
+function closePayModal(){document.getElementById('pay-confirm-modal').classList.remove('open');}
+</script>
+</body>
+</html>

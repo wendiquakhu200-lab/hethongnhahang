@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Quản Lý Nhà Hàng</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+ 
+<style>
+:root {
+  --bg:      #0d0b14;
+  --surface: #141220;
+  --surface2:#1c192e;
+  --surface3:#24213a;
+  --border:  rgba(167,139,250,.06);
+  --border2: rgba(167,139,250,.14);
+  --accent:  #a78bfa;
+  --text:    #d4cff0;
+  --muted:   #3d3758;
+  --muted2:  #6b6390;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+ .brand-logo{
+  width:42px;
+  height:42px;
+  object-fit:cover;
+  border-radius:12px;
+  box-shadow:0 6px 20px rgba(167,139,250,.3);
+  flex-shrink:0;
+}
+/* bg glow */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 55% 45% at 50% -10%, rgba(167,139,250,.12) 0%, transparent 65%),
+    radial-gradient(ellipse 30% 30% at 80% 80%, rgba(99,102,241,.07) 0%, transparent 60%);
+  pointer-events:none;
+}
+ 
+.card{
+  position:relative;
+  width:380px;
+  padding:40px 36px 36px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  box-shadow:0 40px 80px rgba(0,0,0,.5), 0 0 80px rgba(167,139,250,.06);
+  z-index:1;
+}
+ 
+/* top accent line */
+.card::before{
+  content:'';
+  position:absolute;top:0;left:24px;right:24px;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(167,139,250,.4), transparent);
+  border-radius:1px;
+}
+ 
+.brand{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:32px;
+}
+.brand-icon{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,#a78bfa,#6d28d9);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  box-shadow:0 6px 20px rgba(167,139,250,.3);
+  flex-shrink:0;
+}
+.brand-text{
+  font-size:17px;font-weight:700;
+  letter-spacing:-.2px;
+  color:var(--text);
+}
+.brand-sub{
+  font-size:11px;color:var(--muted2);
+  margin-top:2px;font-weight:400;
+}
+ 
+.divider{
+  height:1px;background:var(--border2);margin-bottom:24px;
+}
+ 
+.nav-item{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  text-decoration:none;
+  color:var(--text);
+  margin-bottom:10px;
+  transition:all .18s ease;
+  position:relative;
+  overflow:hidden;
+}
+.nav-item::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(167,139,250,.06),transparent);
+  opacity:0;transition:opacity .18s;
+}
+.nav-item:hover{
+  border-color:var(--border2);
+  background:var(--surface3);
+  transform:translateX(3px);
+}
+.nav-item:hover::after{opacity:1;}
+ 
+.nav-icon{
+  width:38px;height:38px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.nav-icon.order { background:rgba(251,191,36,.1);  color:#fbbf24; }
+.nav-icon.bill  { background:rgba(167,139,250,.1); color:#a78bfa; }
+.nav-icon.admin { background:rgba(148,163,184,.1); color:#94a3b8; }
+ 
+.nav-info{flex:1;}
+.nav-label{font-size:14px;font-weight:600;color:var(--text);}
+.nav-desc{font-size:11px;color:var(--muted2);margin-top:2px;}
+ 
+.nav-arrow{
+  color:var(--muted);font-size:22px;line-height:1;
+  transition:transform .18s, color .18s;
+}
+.nav-item:hover .nav-arrow{
+  transform:translateX(3px);
+  color:var(--accent);
+}
+ 
+.footer{
+  margin-top:20px;
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+}
+</style>
+</head>
+<body>
+ 
+<div class="card">
+  <div class="brand">
+    <img src="/images/2.jpg" class="brand-logo">
+    <div>
+      <div class="brand-text">Quản Lý Nhà Hàng</div>
+      <div class="brand-sub">Restaurant Management System</div>
+    </div>
+  </div>
+ 
+  <div class="divider"></div>
+ 
+  <a href="/order.html" class="nav-item">
+    <div class="nav-icon order">🍽</div>
+    <div class="nav-info">
+      <div class="nav-label">Gọi món</div>
+      <div class="nav-desc">Đặt món cho bàn khách</div>
+    </div>
+    <span class="nav-arrow">›</span>
+  </a>
+ 
+  <a href="/bill.html" class="nav-item">
+    <div class="nav-icon bill">💰</div>
+    <div class="nav-info">
+      <div class="nav-label">Thu ngân</div>
+      <div class="nav-desc">Thanh toán & quản lý hóa đơn</div>
+    </div>
+    <span class="nav-arrow">›</span>
+  </a>
+ 
+  <a href="/admin.html" class="nav-item">
+    <div class="nav-icon admin">⚙️</div>
+    <div class="nav-info">
+      <div class="nav-label">Quản trị</div>
+      <div class="nav-desc">Cài đặt & thống kê hệ thống</div>
+    </div>
+    <span class="nav-arrow">›</span>
+  </a>
+ 
+  <div class="footer">v1.0 · Nhà hàng</div>
+</div>
+ 
+</body>
+</html>

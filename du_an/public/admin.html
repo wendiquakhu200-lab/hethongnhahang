@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Quản Lý</title>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+ 
+  :root {
+    --bg:      #0d0b0d;
+    --surface: #141114;
+    --surface2:#1c191c;
+    --surface3:#24212a;
+    --border:  rgba(245,166,35,.06);
+    --border2: rgba(245,166,35,.18);
+    --accent:  #f5a623;
+    --accent2: #fbbf24;
+    --red:     #f87171;
+    --green:   #34d399;
+    --yellow:  #fbbf24;
+    --text:    #e8e0d0;
+    --muted:   #6b6054;
+    --radius:  12px;
+  }
+ 
+  * { margin:0; padding:0; box-sizing:border-box; }
+ 
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+ 
+  /* ── PIN Screen ── */
+  #pin-screen {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 35%, #1e1608 0%, var(--bg) 70%);
+  }
+  .pin-logo {
+    font-size: 36px; font-weight: 800;
+    letter-spacing: -1px; margin-bottom: 6px;
+  }
+  .pin-logo span { color: var(--accent); }
+  .pin-sub { color: var(--muted); font-size: 14px; margin-bottom: 40px; }
+ 
+  .pin-box {
+    background: var(--surface);
+    border: 1px solid rgba(245,166,35,.18);
+    border-radius: 20px;
+    padding: 32px 28px;
+    width: 320px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(245,166,35,.04);
+  }
+  .pin-label { font-size: 13px; color: var(--muted); text-align: center; margin-bottom: 16px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; }
+  .pin-dots { display: flex; gap: 12px; justify-content: center; margin-bottom: 28px; }
+  .pin-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: rgba(245,166,35,.12);
+    border: 1px solid rgba(245,166,35,.2);
+    transition: all .2s;
+  }
+  .pin-dot.filled { background: var(--accent); border-color: var(--accent); transform: scale(1.2); box-shadow: 0 0 14px rgba(245,166,35,.5); }
+  .pin-dot.shake { animation: shake .3s ease; }
+ 
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+ 
+  .pin-numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pin-key {
+    background: var(--surface2);
+    border: 1px solid rgba(245,166,35,.1);
+    border-radius: 12px; height: 60px;
+    font-size: 20px; font-weight: 700;
+    color: var(--text); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .1s; user-select: none;
+  }
+  .pin-key:active, .pin-key:hover { background: var(--accent); border-color: var(--accent); color: #1a0f00; transform: scale(.96); box-shadow: 0 4px 20px rgba(245,166,35,.3); }
+  .pin-key.del { font-size: 18px; color: var(--muted); }
+  .pin-key.del:hover { background: rgba(248,113,113,.15); border-color: rgba(248,113,113,.3); color: var(--red); }
+  .pin-error { color: var(--red); font-size: 13px; text-align: center; margin-top: 12px; min-height: 20px; font-weight: 500; }
+ 
+  /* ── Admin Shell ── */
+  #admin-screen { display: none; }
+  .shell { display: flex; min-height: 100vh; }
+ 
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 220px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid rgba(245,166,35,.08);
+    display: flex; flex-direction: column;
+    padding: 20px 12px;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .sb-logo { font-size: 17px; font-weight: 800; padding: 6px 10px; margin-bottom: 24px; }
+  .sb-logo span { color: var(--accent); }
+  .sb-nav { flex: 1; }
+  .sb-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    color: var(--muted); cursor: pointer;
+    transition: all .15s; margin-bottom: 2px;
+  }
+  .sb-item:hover { background: var(--surface2); color: var(--text); }
+  .sb-item.active { background: rgba(245,166,35,.12); color: var(--accent); font-weight: 700; border: 1px solid rgba(245,166,35,.15); }
+  .sb-item .icon { font-size: 18px; width: 22px; text-align: center; }
+  .sb-logout {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 10px;
+    font-size: 13px; color: var(--muted); cursor: pointer;
+    transition: all .15s;
+    border-top: 1px solid rgba(245,166,35,.08); margin-top: 8px; padding-top: 16px;
+  }
+  .sb-logout:hover { color: var(--red); }
+ 
+  /* ── Content ── */
+  .content { flex: 1; overflow-y: auto; padding: 28px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; letter-spacing: -.5px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+ 
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid rgba(245,166,35,.08);
+    border-radius: 16px; padding: 20px; margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .7px; color: var(--muted); margin-bottom: 16px;
+  }
+ 
+  /* ── Toolbar ── */
+  .toolbar { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+  .search-input {
+    flex: 1; min-width: 160px;
+    background: var(--surface2);
+    border: 1px solid rgba(245,166,35,.1);
+    border-radius: 8px; padding: 9px 14px;
+    color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+    transition: border-color .2s;
+  }
+  .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,.1); }
+  .search-input::placeholder { color: var(--muted); }
+ 
+  .btn {
+    padding: 9px 18px; border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all .15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #1a0f00; }
+  .btn-primary:hover { background: var(--accent2); box-shadow: 0 4px 20px rgba(245,166,35,.35); }
+  .btn-danger { background: rgba(248,113,113,.1); color: var(--red); border: 1px solid rgba(248,113,113,.2); }
+  .btn-danger:hover { background: rgba(248,113,113,.2); }
+  .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid rgba(245,166,35,.1); }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+ 
+  /* ── Table ── */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .7px; color: var(--muted);
+    border-bottom: 1px solid rgba(245,166,35,.08);
+  }
+  .data-table td {
+    padding: 12px 14px; font-size: 14px;
+    border-bottom: 1px solid rgba(245,166,35,.04);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(245,166,35,.03); }
+  .td-actions { display: flex; gap: 6px; justify-content: flex-end; }
+ 
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 6px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-green  { background: rgba(52,211,153,.12); color: var(--green); }
+  .badge-red    { background: rgba(248,113,113,.12); color: var(--red); }
+  .badge-yellow { background: rgba(245,166,35,.15);  color: var(--accent); }
+  .badge-blue   { background: rgba(245,166,35,.12); color: var(--accent); }
+ 
+  /* ── Toggle ── */
+  .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+  .toggle input { display: none; }
+  .toggle-slider {
+    position: absolute; inset: 0;
+    background: rgba(245,166,35,.15); border-radius: 999px; cursor: pointer; transition: .2s;
+    border: 1px solid rgba(245,166,35,.15);
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 16px; height: 16px; left: 3px; bottom: 2px;
+    background: var(--muted); border-radius: 50%; transition: .2s;
+  }
+  .toggle input:checked + .toggle-slider { background: rgba(245,166,35,.3); border-color: var(--accent); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: var(--accent); }
+ 
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.8);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 500; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface2);
+    border: 1px solid rgba(245,166,35,.15);
+    border-radius: 20px; padding: 28px;
+    width: 440px; max-width: 95vw;
+    transform: scale(.95) translateY(16px); transition: transform .2s;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 40px 100px rgba(0,0,0,.7), 0 0 0 1px rgba(245,166,35,.05);
+  }
+  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .modal-title { font-size: 18px; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; line-height: 1; transition: color .15s; }
+  .modal-close:hover { color: var(--text); }
+ 
+  .form-group { margin-bottom: 14px; }
+  .form-label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .form-input {
+    width: 100%; background: var(--surface3);
+    border: 1px solid rgba(245,166,35,.1);
+    border-radius: 8px; padding: 10px 14px;
+    color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+    transition: border-color .2s;
+  }
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(245,166,35,.1); }
+  .form-input::placeholder { color: var(--muted); }
+  select.form-input option { background: var(--surface2); }
+  .modal-footer { display: flex; gap: 8px; margin-top: 20px; }
+ 
+  /* ── Stats ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px; margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid rgba(245,166,35,.08);
+    border-radius: 14px; padding: 18px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute;
+    top: -20px; right: -20px; width: 70px; height: 70px;
+    border-radius: 50%; opacity: .06;
+  }
+  .stat-card.blue::before  { background: var(--accent); }
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.yellow::before{ background: var(--yellow); }
+  .stat-card.red::before   { background: var(--red); }
+  .stat-val  { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+  .stat-label{ font-size: 12px; color: var(--muted); font-weight: 500; }
+  .stat-card.blue   .stat-val { color: var(--accent); }
+  .stat-card.green  .stat-val { color: var(--green); }
+  .stat-card.yellow .stat-val { color: var(--yellow); }
+  .stat-card.red    .stat-val { color: var(--red); }
+ 
+  /* ── PIN settings ── */
+  .pin-change-box { max-width: 360px; }
+  .pin-display {
+    background: var(--surface2);
+    border: 1px solid rgba(245,166,35,.12);
+    border-radius: 12px; padding: 20px;
+    text-align: center; margin-bottom: 20px;
+  }
+  .pin-value {
+    font-size: 40px; font-weight: 800;
+    letter-spacing: 16px; color: var(--accent);
+    font-family: monospace; margin-bottom: 6px;
+    text-shadow: 0 0 20px rgba(245,166,35,.4);
+  }
+  .pin-hint { font-size: 12px; color: var(--muted); }
+ 
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 600;
+    transform: translateY(60px); opacity: 0;
+    transition: all .3s cubic-bezier(.34,1.56,.64,1);
+    z-index: 1000;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: var(--green); color: #052e1c; }
+  .toast.error   { background: var(--red);   color: #450a0a; }
+ 
+  .scrollbar { scrollbar-width: thin; scrollbar-color: rgba(245,166,35,.15) transparent; }
+  .scrollbar::-webkit-scrollbar { width: 4px; }
+  .scrollbar::-webkit-scrollbar-thumb { background: rgba(245,166,35,.15); border-radius: 2px; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+}
+
+.modal-overlay.open,
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal-body {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.modal-notice {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(245,166,35,.08);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-cancel {
+  background: var(--surface3);
+  color: var(--text);
+}
+
+.btn-cancel:hover {
+  opacity: .8;
+}
+
+.btn-confirm {
+  background: var(--red);
+  color: white;
+}
+
+.btn-confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(248,113,113,.25);
+}
+ 
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .content { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+ 
+<!-- ── PIN Screen ── -->
+<div id="pin-screen">
+  <div class="pin-logo">⚙️ <span>QUẢN LÝ</span></div>
+  <div class="pin-sub">Nhập mã PIN để tiếp tục</div>
+  <div class="pin-box">
+    <div class="pin-label">Mã PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-numpad" id="pin-numpad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key del" onclick="pinClear()">⌫ Xóa</button>
+      <button class="pin-key" onclick="pinPress('0')">0</button>
+      <button class="pin-key del" onclick="pinReset()">✕</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+ 
+<!-- ── Admin Screen ── -->
+<div id="admin-screen">
+  <div class="shell">
+    <div class="sidebar">
+      <div class="sb-logo">🍜 <span>ADMIN</span></div>
+      <div class="sb-nav">
+        <div class="sb-item active" onclick="showPage('dashboard')"><span class="icon">📊</span> Tổng quan</div>
+        <div class="sb-item" onclick="showPage('menu')"><span class="icon">🍽️</span> Thực đơn</div>
+        <div class="sb-item" onclick="showPage('tables')"><span class="icon">🪑</span> Bàn</div>
+        <div class="sb-item" onclick="showPage('orders')"><span class="icon">📋</span> Đơn hàng</div>
+        <div class="sb-item" onclick="showPage('settings')"><span class="icon">🔐</span> Cài đặt</div>
+      </div>
+      <div class="sb-logout" onclick="logout()">🚪 Đăng xuất</div>
+    </div>
+ 
+    <div class="content scrollbar">
+ 
+      <!-- Dashboard -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-title">Tổng quan</div>
+        <div class="page-sub">Trạng thái nhà hàng hôm nay</div>
+        <div class="stats-row" id="dash-stats"></div>
+        <div class="card">
+          <div class="card-title">📋 Đơn đang xử lý</div>
+          <div id="dash-orders"></div>
+        </div>
+      </div>
+ 
+      <!-- Menu -->
+      <div class="page" id="page-menu">
+        <div class="page-title">Thực đơn</div>
+        <div class="page-sub">Quản lý món ăn, giá, phân loại</div>
+        <div class="toolbar">
+          <input type="text" class="search-input" id="menu-search" placeholder="🔍 Tìm món..." oninput="renderMenuTable()"/>
+          <button class="btn btn-primary" onclick="openMenuModal()">＋ Thêm món</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="data-table">
+            <thead><tr>
+              <th>Tên món</th><th>Danh mục</th><th>Giá</th><th>Số lượng</th><th>Trạng thái</th>
+              <th style="text-align:right">Thao tác</th>
+            </tr></thead>
+            <tbody id="menu-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <!-- Tables -->
+      <div class="page" id="page-tables">
+        <div class="page-title">Quản lý bàn</div>
+        <div class="page-sub">Thêm, sửa, xóa bàn</div>
+        <div class="toolbar">
+          <button class="btn btn-primary" onclick="openTableModal()">＋ Thêm bàn</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="data-table">
+            <thead><tr><th>Tên bàn</th><th>Trạng thái</th><th style="text-align:right">Thao tác</th></tr></thead>
+            <tbody id="tables-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <!-- Orders -->
+      <div class="page" id="page-orders">
+        <div class="page-title">Đơn hàng</div>
+        <div class="page-sub">Danh sách đơn đang xử lý</div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="data-table">
+            <thead><tr><th>#</th><th>Bàn</th><th>Số món</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+ 
+      <!-- Settings -->
+      <div class="page" id="page-settings">
+        <div class="page-title">Cài đặt</div>
+        <div class="page-sub">Quản lý mã PIN hệ thống</div>
+ 
+        <div class="card pin-change-box">
+          <div class="card-title">🔐 PIN ADMIN</div>
+          <div class="pin-display">
+            <div class="pin-value" id="current-admin-pin">****</div>
+            <div class="pin-hint">PIN đăng nhập trang quản lý</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PIN Admin mới</label>
+            <input type="number" class="form-input" id="new-admin-pin" placeholder="4 chữ số"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Xác nhận PIN Admin</label>
+            <input type="number" class="form-input" id="confirm-admin-pin" placeholder="Nhập lại"/>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="saveAdminPin()">💾 Lưu PIN Admin</button>
+        </div>
+ 
+        <div class="card pin-change-box">
+          <div class="card-title">🧾 PIN BILL</div>
+          <div class="pin-display">
+            <div class="pin-value" id="current-bill-pin">****</div>
+            <div class="pin-hint">PIN xác nhận thanh toán bill</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">PIN Bill mới</label>
+            <input type="number" class="form-input" id="new-bill-pin" placeholder="4 chữ số"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Xác nhận PIN Bill</label>
+            <input type="number" class="form-input" id="confirm-bill-pin" placeholder="Nhập lại"/>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="saveBillPin()">💾 Lưu PIN Bill</button>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+</div>
+ 
+<!-- ── Menu Modal ── -->
+<div class="modal-overlay" id="menu-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="menu-modal-title">Thêm món</div>
+      <button class="modal-close" onclick="closeModal('menu-modal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tên món *</label>
+      <input type="text" class="form-input" id="mi-name" placeholder="VD: Phở Bò Tái"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Danh mục</label>
+      <input type="text" class="form-input" id="mi-cat" placeholder="VD: Món chính, Đồ uống..."/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Giá (VNĐ) *</label>
+      <input type="number" class="form-input" id="mi-price" placeholder="VD: 65000"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Số lượng tồn</label>
+      <input type="number" class="form-input" id="mi-quantity" placeholder="VD: 10"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Trạng thái</label>
+      <select class="form-input" id="mi-available">
+        <option value="1">✅ Còn hàng</option>
+        <option value="0">❌ Hết hàng</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ảnh món (VD: pho_bo.jpg)</label>
+      <input type="text" class="form-input" id="mi-image" placeholder="Nhập tên file ảnh trong folder images"/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('menu-modal')">Hủy</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveMenuItem()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- ── Table Modal ── -->
+<div class="modal-overlay" id="table-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="table-modal-title">Thêm bàn</div>
+      <button class="modal-close" onclick="closeModal('table-modal')">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tên bàn *</label>
+      <input type="text" class="form-input" id="t-name" placeholder="VD: Bàn 11, Phòng VIP..."/>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('table-modal')">Hủy</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveTable()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="modal-title">Xác nhận xóa</span>
+      </div>
+      <button class="modal-close" onclick="closeDeleteModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-notice">
+        <p>Bạn có chắc muốn xóa món này khỏi thực đơn không?</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeDeleteModal()">Hủy</button>
+      <button class="btn-confirm" id="confirm-delete-btn">🗑️ Xóa món</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+ 
+<script>
+const socket = io();
+let pinBuffer = '';
+let menuItems = [];
+let tables = [];
+let orders = [];
+let editingMenuId = null;
+let editingTableId = null;
+let currentPin = '';
+ 
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updateDots();
+  if (pinBuffer.length === 4) setTimeout(verifyPin, 200);
+}
+function pinClear() { pinBuffer = pinBuffer.slice(0,-1); updateDots(); }
+function pinReset() { pinBuffer = ''; updateDots(); document.getElementById('pin-error').textContent = ''; }
+function updateDots() {
+  for (let i=0;i<4;i++) {
+    const d = document.getElementById(`d${i}`);
+    d.classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+async function verifyPin() {
+  const res = await fetch('/api/verify-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:pinBuffer})});
+  const data = await res.json();
+  if (data.ok) {
+    currentPin = pinBuffer;
+    document.getElementById('pin-screen').style.display='none';
+    document.getElementById('admin-screen').style.display='block';
+    await loadAll();
+  } else {
+    document.getElementById('pin-error').textContent='❌ Sai PIN, thử lại';
+    document.querySelectorAll('.pin-dot').forEach(d=>{d.classList.add('shake');setTimeout(()=>d.classList.remove('shake'),400);});
+    pinBuffer='';
+    setTimeout(()=>{updateDots();document.getElementById('pin-error').textContent='';},800);
+  }
+}
+function logout() {
+  pinBuffer='';currentPin='';updateDots();
+  document.getElementById('admin-screen').style.display='none';
+  document.getElementById('pin-screen').style.display='flex';
+}
+ 
+async function loadAll() {
+  const [mr,tr,or_]=await Promise.all([fetch('/api/menu').then(r=>r.json()),fetch('/api/tables').then(r=>r.json()),fetch('/api/orders').then(r=>r.json())]);
+  menuItems=mr;tables=tr;orders=or_;
+  renderDashboard();renderMenuTable();renderTablesTable();renderOrdersTable();
+}
+ 
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+}
+ 
+function renderDashboard() {
+  const occupied=tables.filter(t=>t.status==='occupied').length;
+  const empty=tables.filter(t=>t.status==='empty').length;
+  const activeOrders=orders.length;
+  const pendingItems=orders.reduce((s,o)=>s+(o.items?.filter(i=>i.status==='pending').length||0),0);
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat-card blue"><div class="stat-val">${occupied}</div><div class="stat-label">Bàn đang phục vụ</div></div>
+    <div class="stat-card green"><div class="stat-val">${empty}</div><div class="stat-label">Bàn trống</div></div>
+    <div class="stat-card yellow"><div class="stat-val">${activeOrders}</div><div class="stat-label">Đơn đang xử lý</div></div>
+    <div class="stat-card red"><div class="stat-val">${pendingItems}</div><div class="stat-label">Món chờ bếp</div></div>
+  `;
+  const tbody=document.getElementById('dash-orders');
+  if(!orders.length){tbody.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">Không có đơn nào</div>';return;}
+  tbody.innerHTML=orders.map(o=>{
+    const total=o.items?.reduce((s,i)=>s+i.price*i.quantity,0)||0;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(245,166,35,.06)">
+      <div><div style="font-weight:600;font-size:14px">${o.table_name}</div><div style="font-size:12px;color:var(--muted)">${o.items?.length||0} món · ${new Date(o.created_at).toLocaleTimeString('vi-VN')}</div></div>
+      <div style="font-weight:700;color:var(--accent)">${fmt(total)}</div>
+    </div>`;
+  }).join('');
+}
+ 
+function renderMenuTable() {
+  const search=document.getElementById('menu-search')?.value.toLowerCase()||'';
+  const items=menuItems.filter(m=>m.name.toLowerCase().includes(search)||m.category.toLowerCase().includes(search));
+  document.getElementById('menu-tbody').innerHTML=items.map(item=>`
+    <tr>
+      <td>${item.image?`<img src="/images/${item.image}" alt="${item.name}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:8px;vertical-align:middle">`:''}
+        <strong>${item.name}</strong></td>
+      <td><span class="badge badge-blue">${item.category}</span></td>
+      <td style="font-weight:600">${fmt(item.price)}</td>
+      <td>${item.quantity||0}</td>
+      <td><label class="toggle"><input type="checkbox" ${item.available?'checked':''} onchange="toggleAvailable(${item.id},this.checked)"/><span class="toggle-slider"></span></label></td>
+      <td><div class="td-actions"><button class="btn btn-ghost btn-sm" onclick="openMenuModal(${item.id})">✏️ Sửa</button><button class="btn btn-danger btn-sm" onclick="deleteMenuItem(${item.id})">🗑️</button></div></td>
+    </tr>
+  `).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Không tìm thấy món</td></tr>`;
+}
+ 
+function openMenuModal(id=null) {
+  editingMenuId=id;
+  document.getElementById('menu-modal-title').textContent=id?'Sửa món':'Thêm món mới';
+  if(id){
+    const item=menuItems.find(m=>m.id===id);
+    document.getElementById('mi-name').value=item.name;
+    document.getElementById('mi-cat').value=item.category;
+    document.getElementById('mi-price').value=item.price;
+    document.getElementById('mi-quantity').value=item.quantity||0;
+    document.getElementById('mi-available').value=item.available;
+    document.getElementById('mi-image').value=item.image||'';
+  } else {
+    ['mi-name','mi-cat','mi-price','mi-quantity','mi-image'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mi-available').value='1';
+  }
+  openModal('menu-modal');
+}
+ 
+async function saveMenuItem() {
+  const name=document.getElementById('mi-name').value.trim();
+  const category=document.getElementById('mi-cat').value.trim()||'Khác';
+  const price=Number(document.getElementById('mi-price').value);
+  const quantity=Number(document.getElementById('mi-quantity').value);
+  const available=Number(document.getElementById('mi-available').value);
+  const image=document.getElementById('mi-image').value.trim()||null;
+  if(!name||!price){showToast('Vui lòng điền đầy đủ thông tin!','error');return;}
+  if(editingMenuId){
+    await fetch(`/api/menu/${editingMenuId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,price,quantity,available,image})});
+    showToast('✅ Đã cập nhật món');
+  } else {
+    await fetch('/api/menu',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,category,price,available,image})});
+    showToast('✅ Đã thêm món mới');
+  }
+  closeModal('menu-modal');await loadAll();
+}
+ 
+let deleteId = null;
+
+function deleteMenuItem(id) {
+  deleteId = id;
+  document.getElementById('delete-modal').classList.add('open');
+}
+
+function closeDeleteModal() {
+  deleteId = null;
+  document.getElementById('delete-modal').classList.remove('open');
+}
+
+document.getElementById('confirm-delete-btn').onclick = async () => {
+  if (!deleteId) return;
+  await fetch(`/api/menu/${deleteId}`, { method: 'DELETE' });
+  closeDeleteModal();
+  showToast('✅ Đã xóa món');
+  await loadAll();
+};
+ 
+async function toggleAvailable(id,val) {
+  const item=menuItems.find(m=>m.id===id);if(!item)return;
+  await fetch(`/api/menu/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({...item,available:val?1:0})});
+  await loadAll();
+}
+ 
+function renderTablesTable() {
+  document.getElementById('tables-tbody').innerHTML=tables.map(t=>`
+    <tr>
+      <td><strong>${t.name}</strong></td>
+      <td><span class="badge ${t.status==='occupied'?'badge-red':'badge-green'}">${t.status==='occupied'?'🔴 Đang phục vụ':'🟢 Trống'}</span></td>
+      <td><div class="td-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openTableModal(${t.id})">✏️ Sửa</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteTable(${t.id})" ${t.status==='occupied'?'disabled title="Bàn đang có khách"':''}>🗑️</button>
+      </div></td>
+    </tr>
+  `).join('');
+}
+ 
+function openTableModal(id=null) {
+  editingTableId=id;
+  document.getElementById('table-modal-title').textContent=id?'Sửa bàn':'Thêm bàn';
+  document.getElementById('t-name').value=id?tables.find(t=>t.id===id)?.name||'':'';
+  openModal('table-modal');
+}
+ 
+async function saveTable() {
+  const name=document.getElementById('t-name').value.trim();
+  if(!name){showToast('Vui lòng nhập tên bàn!','error');return;}
+  if(editingTableId){
+    await fetch(`/api/tables/${editingTableId}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+    showToast('✅ Đã cập nhật bàn');
+  } else {
+    await fetch('/api/tables',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+    showToast('✅ Đã thêm bàn mới');
+  }
+  closeModal('table-modal');await loadAll();
+}
+ 
+let deleteTableId = null;
+
+function deleteTable(id) {
+
+  deleteTableId = id;
+
+  document
+    .getElementById('delete-modal')
+    .classList.add('open');
+
+  document.querySelector(
+    '#delete-modal .modal-title'
+  ).textContent = 'Xác nhận xóa bàn';
+
+  document.querySelector(
+    '#delete-modal .modal-body p'
+  ).textContent = 'Bạn có chắc muốn xóa bàn này không?';
+
+  document.getElementById(
+    'confirm-delete-btn'
+  ).innerHTML = '🗑️ Xóa bàn';
+
+  document.getElementById(
+    'confirm-delete-btn'
+  ).onclick = async () => {
+
+    await fetch(`/api/tables/${deleteTableId}`, {
+      method:'DELETE'
+    });
+
+    closeDeleteModal();
+
+    showToast('✅ Đã xóa bàn');
+
+    await loadAll();
+  };
+}
+ 
+function renderOrdersTable() {
+  document.getElementById('orders-tbody').innerHTML=orders.map(o=>{
+    const total=o.items?.reduce((s,i)=>s+i.price*i.quantity,0)||0;
+    const pending=o.items?.filter(i=>i.status==='pending').length||0;
+    return `<tr>
+      <td><span style="font-family:monospace;color:var(--muted)">#${o.id}</span></td>
+      <td><strong>${o.table_name}</strong></td>
+      <td>${o.items?.length||0} món</td>
+      <td style="font-weight:600;color:var(--accent)">${fmt(total)}</td>
+      <td>${pending>0?`<span class="badge badge-yellow">⏳ ${pending} món chờ</span>`:`<span class="badge badge-green">✓ Hoàn thành</span>`}</td>
+      <td style="color:var(--muted);font-size:12px">${new Date(o.created_at).toLocaleTimeString('vi-VN')}</td>
+    </tr>`;
+  }).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Không có đơn nào</td></tr>`;
+}
+ 
+async function saveAdminPin() {
+  const np=String(document.getElementById('new-admin-pin').value);
+  const cp=String(document.getElementById('confirm-admin-pin').value);
+  if(np.length!==4||isNaN(Number(np))){showToast('PIN Admin phải có 4 số!','error');return;}
+  if(np!==cp){showToast('PIN xác nhận không khớp!','error');return;}
+  await fetch('/api/settings/admin-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:np})});
+  document.getElementById('current-admin-pin').textContent=np;
+  document.getElementById('new-admin-pin').value='';
+  document.getElementById('confirm-admin-pin').value='';
+  showToast('✅ Đã lưu PIN Admin');
+}
+ 
+async function saveBillPin() {
+  const np=String(document.getElementById('new-bill-pin').value);
+  const cp=String(document.getElementById('confirm-bill-pin').value);
+  if(np.length!==4||isNaN(Number(np))){showToast('PIN Bill phải có 4 số!','error');return;}
+  if(np!==cp){showToast('PIN xác nhận không khớp!','error');return;}
+  await fetch('/api/settings/bill-pin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin:np})});
+  document.getElementById('current-bill-pin').textContent=np;
+  document.getElementById('new-bill-pin').value='';
+  document.getElementById('confirm-bill-pin').value='';
+  showToast('✅ Đã lưu PIN Bill');
+}
+ 
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+ 
+socket.on('order_updated',()=>loadAll());
+ 
+function fmt(n){return Number(n).toLocaleString('vi-VN')+'đ';}
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>

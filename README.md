@@ -852,7 +852,7 @@ let tablesData = []; // 👈 thêm dòng này
 async function loadTables() {
   const res = await fetch('/api/tables');
   const tables = await res.json();
-  tablesData = tables; // 👈 lưu lại
+  tablesData = tables;
 
   const grid = document.getElementById('tables-grid');
   grid.innerHTML = '';

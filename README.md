@@ -4,81 +4,59 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0d0d0d">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Order – Khách Hàng</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0d0d0d;
-  --surface:#161616;
-  --surface2:#1e1e1e;
-  --surface3:#252525;
-  --border:#2a2a2a;
-  --gold:#c8922a;
-  --gold2:#e8b84b;
-  --gold-glow:rgba(200,146,42,.18);
-  --text:#f0ece4;
-  --muted:#7a7060;
-  --red:#e05252;
-  --green:#4caf7d;
-  --radius:14px;
+  --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--surface3:#252525;
+  --border:#2a2a2a;--gold:#c8922a;--gold2:#e8b84b;--gold-glow:rgba(200,146,42,.18);
+  --text:#f0ece4;--muted:#7a7060;--red:#e05252;--green:#4caf7d;--radius:14px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'Be Vietnam Pro',sans-serif;}
-body{display:flex;flex-direction:column;overflow:hidden;}
+
+/* Toàn trang dùng position fixed để tránh body scroll */
+html,body{width:100%;height:100%;background:var(--bg);color:var(--text);font-family:'Be Vietnam Pro',sans-serif;overflow:hidden;}
+
+.app{
+  position:fixed;inset:0;
+  padding-top:env(safe-area-inset-top);
+  display:flex;flex-direction:column;
+}
 
 /* HEADER */
 header{
   display:flex;align-items:center;gap:10px;
   padding:12px 16px;
-  padding-top:calc(12px + env(safe-area-inset-top));
   background:var(--surface);border-bottom:1px solid var(--border);
-  z-index:100;flex-shrink:0;
+  flex-shrink:0;z-index:10;
 }
 .logo-area{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
 .logo-icon{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .logo-text{font-family:'Playfair Display',serif;font-size:13px;color:var(--gold2);}
 .logo-sub{font-size:11px;color:var(--muted);margin-top:1px;}
 .table-pill{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:11px;padding:5px 12px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
-.btn-staff{
-  display:flex;align-items:center;gap:6px;
-  background:transparent;border:1px solid var(--gold);color:var(--gold2);
-  padding:7px 12px;border-radius:8px;
-  font-family:inherit;font-size:12px;font-weight:600;
-  cursor:pointer;white-space:nowrap;flex-shrink:0;
-}
+.btn-staff{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--gold);color:var(--gold2);padding:7px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 
-/* APP BODY */
-.app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+/* SCREENS — chiếm phần còn lại sau header */
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:none;}
+.screen.active{display:block;}
 
-/* ═══ TABLE SCREEN ═══ */
-#table-screen{
-  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:0 0 40px;
-}
-.table-hero{
-  padding:28px 20px 20px;
-  background:linear-gradient(180deg,var(--surface) 0%,transparent 100%);
-  margin-bottom:4px;
-}
+/* TABLE SCREEN */
+.table-hero{padding:24px 20px 16px;background:linear-gradient(180deg,var(--surface),transparent);}
 .table-hero h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2);margin-bottom:4px;}
 .table-hero p{color:var(--muted);font-size:13px}
-
-/* Grid theo hàng ngang đẹp */
-.tables-section{padding:0 16px;}
-.section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;margin-top:16px;}
+.tables-section{padding:0 16px 40px;}
+.section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 10px;}
 .tables-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
 .tables-row.vip-row{grid-template-columns:repeat(2,1fr);}
-
 .table-btn{
   background:var(--surface2);border:2px solid var(--border);border-radius:16px;
   padding:16px 8px 14px;color:var(--text);text-align:center;cursor:pointer;
-  transition:all .2s;position:relative;overflow:hidden;
+  position:relative;overflow:hidden;
   display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:border-color .15s;
 }
-.table-btn:active{transform:scale(.96);}
+.table-btn:active{opacity:.7;}
 .table-btn.occupied{border-color:var(--red);}
 .table-btn .t-icon{color:var(--muted);}
 .table-btn.vip-btn .t-icon{color:var(--gold);}
@@ -87,66 +65,103 @@ header{
 .table-btn.occupied .t-status{color:var(--red);}
 .t-dot{display:none;position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 2s infinite;}
 .table-btn.occupied .t-dot{display:block;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3;transform:scale(1.5)}}
 
-/* ═══ MAIN SCREEN ═══ */
-#main-screen{display:none;flex:1;overflow:hidden;flex-direction:column;}
-.main-layout{display:flex;flex:1;overflow:hidden;}
+/* MAIN SCREEN — flex row */
+#main-screen{
+  display:none;flex-direction:row;
+  overflow:hidden; /* children handle their own scroll */
+}
+#main-screen.active{display:flex;}
 
-/* MENU PANEL */
-.menu-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);min-width:0;}
+/* MENU SIDE */
+.menu-panel{
+  flex:1;min-width:0;
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border);
+  overflow:hidden;
+}
 .menu-top{padding:12px 14px 0;flex-shrink:0;}
 .search-wrap{position:relative;margin-bottom:10px;}
 .search-wrap .s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
-#search-input{
-  width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-  padding:9px 12px 9px 36px;color:var(--text);font-family:inherit;font-size:14px;outline:none;
-}
+#search-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:9px 12px 9px 36px;color:var(--text);font-family:inherit;font-size:14px;outline:none;}
 #search-input::placeholder{color:var(--muted)}
 .cat-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
 .cat-tabs::-webkit-scrollbar{display:none}
 .cat-tab{flex-shrink:0;padding:6px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;}
 .cat-tab.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
-.menu-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 14px;}
-.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+.menu-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:0 14px 80px;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;}
 
-/* MENU CARD */
-.menu-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .18s;display:flex;flex-direction:column;}
+/* CARD */
+.menu-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;}
 .menu-card.unavailable{opacity:.35;pointer-events:none}
-.card-thumb{width:100%;height:110px;background:var(--surface3);display:flex;align-items:center;justify-content:center;}
+.card-thumb{width:100%;height:108px;background:var(--surface3);display:flex;align-items:center;justify-content:center;}
 .card-body{padding:9px 11px 11px}
 .card-cat{font-size:10px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
-.card-name{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px}
+.card-name{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:4px}
 .card-stock{font-size:10px;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:4px}
 .card-footer{display:flex;align-items:center;justify-content:space-between}
 .card-price{font-size:13px;font-weight:700;color:var(--gold2)}
 .card-add{width:28px;height:28px;background:var(--gold);color:#000;border-radius:7px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
-.card-add svg{pointer-events:none}
 
-/* ORDER PANEL */
-.order-panel{width:290px;display:flex;flex-direction:column;background:var(--surface);flex-shrink:0;}
+/* ORDER PANEL (desktop) */
+.order-panel{
+  width:288px;flex-shrink:0;
+  display:flex;flex-direction:column;
+  background:var(--surface);
+  overflow:hidden;
+}
+
+/* ORDER PANEL MOBILE — sheet từ dưới lên */
+@media(max-width:640px){
+  .menu-panel{border-right:none;}
+  .order-panel{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    width:100%;
+    height:60vh;
+    border-radius:18px 18px 0 0;
+    border-top:1px solid var(--border);
+    transform:translateY(calc(100% - 48px));
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+    z-index:100;
+  }
+  .order-panel.open{transform:translateY(0);}
+  .drag-bar{display:flex!important;}
+  .menu-scroll{padding-bottom:120px;} /* space for sheet */
+  .btn-staff span{display:none;}
+}
+
+.drag-bar{
+  display:none;
+  justify-content:center;align-items:center;
+  padding:10px 0 4px;flex-shrink:0;cursor:grab;
+}
+.drag-handle{width:36px;height:4px;background:var(--border);border-radius:2px;}
+
 .order-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-.o-tab{flex:1;padding:13px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;}
+.o-tab{flex:1;padding:12px 6px;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;}
 .o-tab.active{color:var(--gold2);border-bottom-color:var(--gold)}
 
-/* CART */
-#cart-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#cart-view{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .cart-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;}
-.empty-state{text-align:center;padding:40px 16px;color:var(--muted);}
-.empty-state .e-icon{display:flex;justify-content:center;margin-bottom:10px;opacity:.35;}
+.empty-state{text-align:center;padding:36px 16px;color:var(--muted);}
+.empty-state .e-icon{display:flex;justify-content:center;margin-bottom:10px;opacity:.3;}
 .empty-state p{font-size:12px;line-height:1.6}
-.cart-item{background:var(--surface2);border-radius:10px;padding:9px;margin-bottom:7px;display:flex;gap:7px;align-items:flex-start;animation:fadeUp .2s ease;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.cart-item{background:var(--surface2);border-radius:10px;padding:9px;margin-bottom:7px;display:flex;gap:7px;align-items:flex-start;}
 .ci-info{flex:1;min-width:0}
-.ci-name{font-size:12px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-name{font-size:12px;font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .ci-unit{font-size:11px;color:var(--muted)}
 .ci-subtotal{font-size:12px;color:var(--gold2);font-weight:700;margin-top:2px}
 .ci-note input{margin-top:5px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 7px;font-size:11px;color:var(--text);font-family:inherit;outline:none;}
 .ci-note input::placeholder{color:var(--muted)}
-.ci-actions{display:flex;flex-direction:column;align-items:center;gap:3px}
-.qty-btn{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.qty-num{font-size:13px;font-weight:700}
-.ci-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;display:flex;align-items:center;}
+.ci-actions{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;}
+.qty-btn{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.qty-num{font-size:13px;font-weight:700;}
+.ci-del{background:none;border:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;padding:1px;}
+
 .cart-footer{padding:10px;border-top:1px solid var(--border);flex-shrink:0;}
 .summary-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
 .summary-row .lbl{color:var(--muted)}
@@ -156,8 +171,7 @@ header{
 .btn-send:disabled{opacity:.4;pointer-events:none}
 .btn-history{width:100%;margin-top:7px;padding:9px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
 
-/* HISTORY */
-#history-view{flex:1;display:none;flex-direction:column;overflow:hidden}
+#history-view{flex:1;display:none;flex-direction:column;overflow:hidden;}
 .history-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;}
 .order-group{background:var(--surface2);border-radius:10px;margin-bottom:9px;overflow:hidden;}
 .og-header{padding:9px 11px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
@@ -165,8 +179,8 @@ header{
 .og-total{font-size:12px;font-weight:700;color:var(--gold2)}
 .og-item{padding:7px 11px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.03);}
 .og-item:last-child{border-bottom:none}
-.og-name{font-size:12px;color:var(--text)}
-.og-meta{display:flex;align-items:center;gap:7px;font-size:11px}
+.og-name{font-size:12px;color:var(--text);flex:1;min-width:0;}
+.og-meta{display:flex;align-items:center;gap:7px;font-size:11px;flex-shrink:0;}
 .og-price{color:var(--muted)}
 .badge{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;display:flex;align-items:center;gap:3px;}
 .badge-done{background:rgba(76,175,125,.15);color:var(--green)}
@@ -185,7 +199,7 @@ header{
 .modal-desc{font-size:12px;color:var(--muted);margin-bottom:15px;line-height:1.5}
 .reason-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:15px;}
 .reason-btn{padding:10px 7px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px;}
-.reason-btn .r-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.reason-btn .r-icon{color:var(--muted);}
 .reason-btn.selected{border-color:var(--gold);background:var(--gold-glow);color:var(--gold2);}
 .reason-btn.selected .r-icon{color:var(--gold2)}
 .modal-note{margin-bottom:13px;}
@@ -197,7 +211,7 @@ header{
 /* SUCCESS */
 .success-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
 .success-overlay.show{opacity:1}
-.success-box{background:var(--surface2);border:1px solid var(--green);border-radius:20px;padding:28px 24px;text-align:center;transform:scale(.9);transition:transform .3s;min-width:200px;}
+.success-box{background:var(--surface2);border:1px solid var(--green);border-radius:20px;padding:28px 24px;text-align:center;transform:scale(.9);transition:transform .3s;}
 .success-overlay.show .success-box{transform:scale(1)}
 .s-icon-wrap{display:flex;justify-content:center;margin-bottom:12px;}
 .s-circle{width:52px;height:52px;border-radius:50%;background:rgba(76,175,125,.15);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;color:var(--green);}
@@ -205,82 +219,52 @@ header{
 .success-box p{font-size:12px;color:var(--muted)}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;font-weight:600;font-size:13px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;font-weight:600;font-size:13px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;}
 .toast.gold{background:var(--gold);color:#000}
-.toast.green{background:var(--green);color:#000}
 .toast.red{background:var(--red);color:#fff}
 .toast.show{opacity:1}
-
-/* ═══ MOBILE ═══ */
-@media(max-width:640px){
-  #main-screen{flex:1;overflow:hidden;}
-  .main-layout{flex-direction:column;flex:1;overflow:hidden;position:relative;}
-  .menu-panel{flex:1;border-right:none;overflow:hidden;}
-  .order-panel{
-    position:absolute;bottom:0;left:0;right:0;
-    width:100%;height:58vh;
-    transform:translateY(calc(100% - 46px));
-    transition:transform .3s cubic-bezier(.4,0,.2,1);
-    border-top:1px solid var(--border);
-    border-radius:18px 18px 0 0;
-    z-index:50;
-  }
-  .order-panel.open{transform:translateY(0);}
-  /* drag handle */
-  .order-panel::before{
-    content:'';display:block;width:36px;height:4px;
-    background:var(--border);border-radius:2px;
-    margin:10px auto 4px;flex-shrink:0;
-  }
-  .btn-staff span{display:none}
-  .toast{bottom:calc(58vh + 8px)}
-  .tables-row{grid-template-columns:repeat(3,1fr);}
-  .tables-row.vip-row{grid-template-columns:repeat(2,1fr);}
-}
+@media(max-width:640px){.toast{bottom:calc(60vh + 12px)}}
 </style>
 </head>
 <body>
-
-<header>
-  <div class="logo-area">
-    <div class="logo-icon">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#000" stroke-width="2.2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+<div class="app">
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#000" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+      </div>
+      <div style="min-width:0">
+        <div class="logo-text">ORDER (KHÁCH HÀNG)</div>
+        <div class="logo-sub" id="hdr-sub">Chọn bàn để bắt đầu</div>
+      </div>
+    </div>
+    <div id="hdr-table" class="table-pill" style="display:none"></div>
+    <button class="btn-staff" id="btn-call-staff" onclick="openStaffModal()" style="display:none">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
       </svg>
+      <span>Gọi nhân viên</span>
+    </button>
+  </header>
+
+  <!-- TABLE SCREEN -->
+  <div class="screen active" id="table-screen">
+    <div class="table-hero">
+      <h2>Chọn bàn của bạn</h2>
+      <p>Nhấn vào bàn để bắt đầu đặt món</p>
     </div>
-    <div style="min-width:0;flex:1">
-      <div class="logo-text">ORDER (KHÁCH HÀNG)</div>
-      <div class="logo-sub" id="hdr-sub">Chọn bàn để bắt đầu</div>
+    <div class="tables-section">
+      <div class="section-label">Bàn thường</div>
+      <div class="tables-row" id="normal-tables"></div>
+      <div class="section-label">Phòng VIP</div>
+      <div class="tables-row vip-row" id="vip-tables"></div>
     </div>
   </div>
-  <div id="hdr-table" class="table-pill" style="display:none"></div>
-  <button class="btn-staff" id="btn-call-staff" onclick="openStaffModal()" style="display:none">
-    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
-    </svg>
-    <span>Gọi nhân viên</span>
-  </button>
-</header>
 
-<div class="app-body">
-
-<!-- TABLE SCREEN -->
-<div id="table-screen">
-  <div class="table-hero">
-    <h2>Chọn bàn của bạn</h2>
-    <p>Nhấn vào bàn để bắt đầu đặt món</p>
-  </div>
-  <div class="tables-section">
-    <div class="section-label">Bàn thường</div>
-    <div class="tables-row" id="normal-tables"></div>
-    <div class="section-label">Phòng VIP</div>
-    <div class="tables-row vip-row" id="vip-tables"></div>
-  </div>
-</div>
-
-<!-- MAIN SCREEN -->
-<div id="main-screen">
-  <div class="main-layout">
+  <!-- MAIN SCREEN -->
+  <div class="screen" id="main-screen">
     <div class="menu-panel">
       <div class="menu-top">
         <div class="search-wrap">
@@ -297,54 +281,44 @@ header{
     </div>
 
     <div class="order-panel" id="order-panel">
-      <div class="order-tabs" id="order-tabs">
+      <div class="drag-bar" id="drag-bar">
+        <div class="drag-handle"></div>
+      </div>
+      <div class="order-tabs">
         <button class="o-tab active" data-tab="cart">
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-          </svg>
-          Đơn hàng
+          </svg>Đơn hàng
         </button>
         <button class="o-tab" data-tab="history">
           <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
-          Lịch sử
+          </svg>Lịch sử
         </button>
       </div>
-
       <div id="cart-view">
         <div class="cart-scroll" id="cart-scroll"></div>
         <div class="cart-footer">
           <div id="summary-rows"></div>
-          <div class="summary-total">
-            <span>Tổng cộng</span>
-            <span class="amt" id="grand-total">0đ</span>
-          </div>
+          <div class="summary-total"><span>Tổng cộng</span><span class="amt" id="grand-total">0đ</span></div>
           <button class="btn-send" id="btn-send" disabled onclick="submitOrder()">
-            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
-            </svg>
-            Gửi lên bếp
+            </svg>Gửi lên bếp
           </button>
           <button class="btn-history" onclick="switchTab('history')">
             <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-            </svg>
-            Lịch sử đơn hàng
+            </svg>Lịch sử đơn hàng
           </button>
         </div>
       </div>
-
       <div id="history-view">
         <div class="history-scroll" id="history-scroll"></div>
-        <div class="history-total">
-          <span>Tổng đã gọi</span>
-          <span id="history-grand">0đ</span>
-        </div>
+        <div class="history-total"><span>Tổng đã gọi</span><span id="history-grand">0đ</span></div>
       </div>
     </div>
   </div>
-</div>
 </div>
 
 <!-- STAFF MODAL -->
@@ -360,9 +334,7 @@ header{
     </div>
     <p class="modal-desc">Chọn lý do để nhân viên hỗ trợ bạn nhanh hơn</p>
     <div class="reason-grid" id="reason-grid"></div>
-    <div class="modal-note">
-      <input type="text" id="staff-note" placeholder="Ghi chú thêm (nếu có)..."/>
-    </div>
+    <div class="modal-note"><input type="text" id="staff-note" placeholder="Ghi chú thêm (nếu có)..."/></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeStaffModal()">Huỷ</button>
       <button class="btn-confirm" onclick="confirmCallStaff()">Gọi ngay</button>
@@ -373,18 +345,16 @@ header{
 <div class="success-overlay" id="success-overlay">
   <div class="success-box">
     <div class="s-icon-wrap"><div class="s-circle" id="success-icon-wrap"></div></div>
-    <h3 id="success-title">Đã gửi thành công!</h3>
-    <p id="success-msg">Nhân viên sẽ xử lý ngay</p>
+    <h3 id="success-title"></h3><p id="success-msg"></p>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-const SVG={
+const I={
   chair:`<svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12v7m14-7v7m-9 0h4"/></svg>`,
   vip:`<svg width="26" height="26" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>`,
-  food:`<svg width="38" height="38" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M6 13.121v4.129a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 17.25v-4.129M6 13.121a2.25 2.25 0 01-2.25-2.25V9.75A2.25 2.25 0 016 7.5h12A2.25 2.25 0 0120.25 9.75v1.121A2.25 2.25 0 0118 13.12"/></svg>`,
+  food:`<svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v-1.5m0 1.5c-1.355 0-2.697.056-4.024.166C6.845 8.51 6 9.473 6 10.608v2.513m6-4.871c1.355 0 2.697.056 4.024.166C17.155 8.51 18 9.473 18 10.608v2.513M6 13.121v4.129a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 17.25v-4.129M6 13.121a2.25 2.25 0 01-2.25-2.25V9.75A2.25 2.25 0 016 7.5h12A2.25 2.25 0 0120.25 9.75v1.121A2.25 2.25 0 0118 13.12"/></svg>`,
   clock:`<svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>`,
   check:`<svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>`,
   bell:`<svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>`,
@@ -423,15 +393,15 @@ const MENU=[
   {id:13,name:'Chè ba màu',cat:'Tráng miệng',price:35000,qty:15,avail:true},
   {id:14,name:'Kem dừa',cat:'Tráng miệng',price:40000,qty:12,avail:true},
 ];
-const STAFF_REASONS=[
-  {svg:SVG.paper,label:'Thêm khăn giấy'},
-  {svg:SVG.utensils,label:'Thêm dụng cụ'},
-  {svg:SVG.card,label:'Thanh toán'},
-  {svg:SVG.warn,label:'Vấn đề món ăn'},
-  {svg:SVG.chat,label:'Tư vấn menu'},
-  {svg:SVG.dots,label:'Khác'},
+const REASONS=[
+  {svg:I.paper,label:'Thêm khăn giấy'},
+  {svg:I.utensils,label:'Thêm dụng cụ'},
+  {svg:I.card,label:'Thanh toán'},
+  {svg:I.warn,label:'Vấn đề món ăn'},
+  {svg:I.chat,label:'Tư vấn menu'},
+  {svg:I.dots,label:'Khác'},
 ];
-const HISTORY_DATA={
+const HIST={
   2:[
     {time:'18:32',items:[{name:'Phở bò',qty:2,price:75000,status:'done'},{name:'Trà đá',qty:2,price:10000,status:'done'}]},
     {time:'18:55',items:[{name:'Bia Hà Nội',qty:3,price:30000,status:'pending'}]},
@@ -440,61 +410,51 @@ const HISTORY_DATA={
   8:[{time:'17:45',items:[{name:'Bò lúc lắc',qty:2,price:120000,status:'done'},{name:'Bia Hà Nội',qty:4,price:30000,status:'done'}]}],
 };
 
-let menuItems=MENU.map(m=>({...m}));
-let cart=[],history=[],selectedTable=null,activeCat='Tất cả',selectedReason=null,toastTimer;
+let items=MENU.map(m=>({...m})),cart=[],hist=[],selTable=null,activeCat='Tất cả',selReason=null,toastT;
 
 function init(){
   renderTables();
   document.getElementById('search-input').addEventListener('input',renderMenu);
-  document.getElementById('order-tabs').addEventListener('click',e=>{
-    const tab=e.target.closest('.o-tab');
-    if(tab){switchTab(tab.dataset.tab);document.getElementById('order-panel').classList.add('open');}
+  // tab clicks
+  document.querySelector('.order-tabs').addEventListener('click',e=>{
+    const t=e.target.closest('.o-tab');
+    if(t){switchTab(t.dataset.tab);document.getElementById('order-panel').classList.add('open');}
   });
-  document.getElementById('staff-modal').addEventListener('click',e=>{
-    if(e.target===e.currentTarget)closeStaffModal();
-  });
-  // Swipe gesture on order panel
+  document.getElementById('staff-modal').addEventListener('click',e=>{if(e.target.id==='staff-modal')closeStaffModal();});
+  // swipe on drag bar & panel header
   initSwipe();
   renderCart();
 }
 
 function initSwipe(){
   const panel=document.getElementById('order-panel');
-  let startY=0,startX=0;
-  panel.addEventListener('touchstart',e=>{
-    startY=e.touches[0].clientY;
-    startX=e.touches[0].clientX;
-  },{passive:true});
+  let sy=0,sx=0;
+  panel.addEventListener('touchstart',e=>{sy=e.touches[0].clientY;sx=e.touches[0].clientX;},{passive:true});
   panel.addEventListener('touchend',e=>{
-    const dy=startY-e.changedTouches[0].clientY;
-    const dx=Math.abs(startX-e.changedTouches[0].clientX);
-    if(dx>40)return; // horizontal swipe, ignore
-    if(dy>40) panel.classList.add('open');
-    if(dy<-40) panel.classList.remove('open');
+    const dy=sy-e.changedTouches[0].clientY;
+    const dx=Math.abs(sx-e.changedTouches[0].clientX);
+    if(dx>50)return;
+    if(dy>50)panel.classList.add('open');
+    else if(dy<-50)panel.classList.remove('open');
   },{passive:true});
 }
 
 function renderTables(){
-  const normal=document.getElementById('normal-tables');
-  const vip=document.getElementById('vip-tables');
-  normal.innerHTML='';vip.innerHTML='';
+  ['normal-tables','vip-tables'].forEach(id=>document.getElementById(id).innerHTML='');
   TABLES.forEach(t=>{
     const btn=document.createElement('button');
-    btn.className='table-btn'+(t.status==='occupied'?' occupied':'')+(t.vip?' vip-btn':'');
-    btn.innerHTML=`
-      <div class="t-icon">${t.vip?SVG.vip:SVG.chair}</div>
-      <div class="t-name">${t.name}</div>
-      <div class="t-status">${t.status==='occupied'?'Đang phục vụ':'Trống'}</div>
-      <div class="t-dot"></div>`;
+    btn.className='table-btn'+(t.occupied||t.status==='occupied'?' occupied':'')+(t.vip?' vip-btn':'');
+    btn.innerHTML=`<div class="t-icon">${t.vip?I.vip:I.chair}</div><div class="t-name">${t.name}</div><div class="t-status">${t.status==='occupied'?'Đang phục vụ':'Trống'}</div><div class="t-dot"></div>`;
     btn.onclick=()=>selectTable(t);
-    (t.vip?vip:normal).appendChild(btn);
+    document.getElementById(t.vip?'vip-tables':'normal-tables').appendChild(btn);
   });
 }
 
 function selectTable(t){
-  selectedTable=t;history=[...(HISTORY_DATA[t.id]||[])];cart=[];
-  document.getElementById('table-screen').style.display='none';
-  document.getElementById('main-screen').style.display='flex';
+  selTable=t;hist=[...(HIST[t.id]||[])];cart=[];
+  document.getElementById('table-screen').classList.remove('active');
+  const ms=document.getElementById('main-screen');
+  ms.classList.add('active');ms.style.display='flex';
   document.getElementById('hdr-table').style.display='block';
   document.getElementById('hdr-table').textContent=t.name;
   document.getElementById('hdr-sub').textContent=t.name+' • Đang phục vụ';
@@ -503,160 +463,104 @@ function selectTable(t){
 }
 
 function renderCats(){
-  const cats=['Tất cả',...new Set(menuItems.map(m=>m.cat))];
-  const tabs=document.getElementById('cat-tabs');
-  tabs.innerHTML='';
-  cats.forEach(cat=>{
-    const btn=document.createElement('button');
-    btn.className='cat-tab'+(cat===activeCat?' active':'');
-    btn.textContent=cat;
-    btn.onclick=()=>{activeCat=cat;renderCats();renderMenu();};
-    tabs.appendChild(btn);
+  const cats=['Tất cả',...new Set(items.map(m=>m.cat))];
+  const el=document.getElementById('cat-tabs');el.innerHTML='';
+  cats.forEach(c=>{
+    const b=document.createElement('button');b.className='cat-tab'+(c===activeCat?' active':'');
+    b.textContent=c;b.onclick=()=>{activeCat=c;renderCats();renderMenu();};
+    el.appendChild(b);
   });
 }
 
 function renderMenu(){
   const q=document.getElementById('search-input').value.toLowerCase();
-  let items=menuItems;
-  if(activeCat!=='Tất cả')items=items.filter(m=>m.cat===activeCat);
-  if(q)items=items.filter(m=>m.name.toLowerCase().includes(q));
-  const grid=document.getElementById('menu-grid');
-  grid.innerHTML='';
-  items.forEach(item=>{
-    const avail=item.avail&&item.qty>0;
-    const card=document.createElement('div');
-    card.className='menu-card'+(avail?'':' unavailable');
-    card.innerHTML=`
-      <div class="card-thumb">${SVG.food}</div>
-      <div class="card-body">
-        <div class="card-cat">${item.cat}</div>
-        <div class="card-name">${item.name}</div>
-        <div class="card-stock">
-          <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            ${item.qty>0?'<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>':'<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'}
-          </svg>
-          ${item.qty>0?'Còn '+item.qty+' phần':'Hết món'}
-        </div>
-        <div class="card-footer">
-          <span class="card-price">${fmt(item.price)}</span>
-          ${avail?`<button class="card-add" onclick="addToCart(event,${item.id})">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-            </svg>
-          </button>`:''}
-        </div>
-      </div>`;
-    if(avail)card.onclick=e=>{if(!e.target.closest('.card-add'))addToCart(e,item.id);};
-    grid.appendChild(card);
+  let list=items;
+  if(activeCat!=='Tất cả')list=list.filter(m=>m.cat===activeCat);
+  if(q)list=list.filter(m=>m.name.toLowerCase().includes(q));
+  const g=document.getElementById('menu-grid');g.innerHTML='';
+  list.forEach(item=>{
+    const ok=item.avail&&item.qty>0;
+    const d=document.createElement('div');d.className='menu-card'+(ok?'':' unavailable');
+    d.innerHTML=`<div class="card-thumb">${I.food}</div>
+    <div class="card-body">
+      <div class="card-cat">${item.cat}</div>
+      <div class="card-name">${item.name}</div>
+      <div class="card-stock">
+        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">${item.qty>0?'<path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>':'<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'}</svg>
+        ${item.qty>0?'Còn '+item.qty+' phần':'Hết món'}
+      </div>
+      <div class="card-footer">
+        <span class="card-price">${fmt(item.price)}</span>
+        ${ok?`<button class="card-add" onclick="addCart(event,${item.id})"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg></button>`:''}
+      </div>
+    </div>`;
+    if(ok)d.onclick=e=>{if(!e.target.closest('.card-add'))addCart(e,item.id);};
+    g.appendChild(d);
   });
 }
 
-function addToCart(e,id){
-  e&&e.stopPropagation&&e.stopPropagation();
-  const item=menuItems.find(m=>m.id===id);
-  const existing=cart.find(c=>c.id===id);
-  const curQty=existing?existing.qty:0;
-  if(curQty>=item.qty){showToast('Chỉ còn '+item.qty+' phần','red');return;}
-  if(existing)existing.qty++;
-  else cart.push({id:item.id,name:item.name,price:item.price,qty:1,note:''});
+function addCart(e,id){
+  e&&e.stopPropagation();
+  const m=items.find(x=>x.id===id),ex=cart.find(x=>x.id===id);
+  if((ex?ex.qty:0)>=m.qty){showToast('Chỉ còn '+m.qty+' phần','red');return;}
+  if(ex)ex.qty++;else cart.push({id:m.id,name:m.name,price:m.price,qty:1,note:''});
   document.getElementById('order-panel').classList.add('open');
-  renderCart();
-  showToast('Đã thêm '+item.name,'gold');
+  renderCart();showToast('Đã thêm '+m.name,'gold');
 }
 
-function changeQty(idx,delta){
-  const c=cart[idx];
-  const m=menuItems.find(m=>m.id===c.id);
-  if(delta>0&&c.qty>=m.qty){showToast('Chỉ còn '+m.qty+' phần','red');return;}
-  c.qty+=delta;
-  if(c.qty<=0)cart.splice(idx,1);
-  renderCart();
+function changeQty(i,d){
+  const c=cart[i],m=items.find(x=>x.id===c.id);
+  if(d>0&&c.qty>=m.qty){showToast('Chỉ còn '+m.qty+' phần','red');return;}
+  c.qty+=d;if(c.qty<=0)cart.splice(i,1);renderCart();
 }
-function removeItem(idx){cart.splice(idx,1);renderCart();}
+function removeItem(i){cart.splice(i,1);renderCart();}
 
 function renderCart(){
-  const scroll=document.getElementById('cart-scroll');
+  const sc=document.getElementById('cart-scroll');
   const btn=document.getElementById('btn-send');
-  const grandEl=document.getElementById('grand-total');
-  const sumEl=document.getElementById('summary-rows');
-  const count=cart.reduce((s,c)=>s+c.qty,0);
-  const total=cart.reduce((s,c)=>s+c.price*c.qty,0);
-  grandEl.textContent=fmt(total);
-  btn.disabled=cart.length===0;
-  sumEl.innerHTML=cart.length?`<div class="summary-row"><span class="lbl">Số lượng</span><span>${count} phần</span></div>`:'';
-  if(!cart.length){
-    scroll.innerHTML=`<div class="empty-state">
-      <div class="e-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-      </svg></div>
-      <p>Chưa có món nào<br>Thêm món từ thực đơn nhé!</p>
-    </div>`;
-    return;
-  }
-  scroll.innerHTML='';
-  cart.forEach((item,idx)=>{
-    const div=document.createElement('div');
-    div.className='cart-item';
-    div.innerHTML=`
-      <div class="ci-info">
-        <div class="ci-name">${item.name}</div>
-        <div class="ci-unit">${fmt(item.price)} / phần</div>
-        <div class="ci-subtotal">${fmt(item.price*item.qty)}</div>
-        <div class="ci-note"><input type="text" placeholder="Ghi chú..." value="${item.note}" oninput="cart[${idx}].note=this.value"/></div>
-      </div>
-      <div class="ci-actions">
-        <button class="ci-del" onclick="removeItem(${idx})">${SVG.trash}</button>
-        <button class="qty-btn" onclick="changeQty(${idx},1)">
-          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-        </button>
-        <span class="qty-num">${item.qty}</span>
-        <button class="qty-btn" onclick="changeQty(${idx},-1)">
-          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/></svg>
-        </button>
-      </div>`;
-    scroll.appendChild(div);
+  document.getElementById('grand-total').textContent=fmt(cart.reduce((s,c)=>s+c.price*c.qty,0));
+  btn.disabled=!cart.length;
+  const cnt=cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('summary-rows').innerHTML=cart.length?`<div class="summary-row"><span class="lbl">Số lượng</span><span>${cnt} phần</span></div>`:'';
+  if(!cart.length){sc.innerHTML=`<div class="empty-state"><div class="e-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg></div><p>Chưa có món nào<br>Thêm món từ thực đơn nhé!</p></div>`;return;}
+  sc.innerHTML='';
+  cart.forEach((c,i)=>{
+    const d=document.createElement('div');d.className='cart-item';
+    d.innerHTML=`<div class="ci-info"><div class="ci-name">${c.name}</div><div class="ci-unit">${fmt(c.price)} / phần</div><div class="ci-subtotal">${fmt(c.price*c.qty)}</div><div class="ci-note"><input type="text" placeholder="Ghi chú..." value="${c.note}" oninput="cart[${i}].note=this.value"/></div></div>
+    <div class="ci-actions"><button class="ci-del" onclick="removeItem(${i})">${I.trash}</button>
+    <button class="qty-btn" onclick="changeQty(${i},1)"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg></button>
+    <span class="qty-num">${c.qty}</span>
+    <button class="qty-btn" onclick="changeQty(${i},-1)"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/></svg></button></div>`;
+    sc.appendChild(d);
   });
 }
 
 function submitOrder(){
   if(!cart.length)return;
-  const btn=document.getElementById('btn-send');
-  btn.disabled=true;
-  btn.textContent='Đang gửi...';
-  cart.forEach(c=>{const m=menuItems.find(m=>m.id===c.id);if(m)m.qty=Math.max(0,m.qty-c.qty);});
-  const now=new Date();
-  const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  history.push({time:t,items:cart.map(c=>({name:c.name,qty:c.qty,price:c.price,note:c.note,status:'pending'}))});
+  const btn=document.getElementById('btn-send');btn.disabled=true;btn.textContent='Đang gửi...';
+  cart.forEach(c=>{const m=items.find(x=>x.id===c.id);if(m)m.qty=Math.max(0,m.qty-c.qty);});
+  const now=new Date(),t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  hist.push({time:t,items:cart.map(c=>({...c,status:'pending'}))});
   setTimeout(()=>{
     cart=[];renderCart();renderMenu();renderHistory();
-    showSuccess(SVG.check,'Đã gửi lên bếp!','Vui lòng đợi trong giây lát');
-    btn.disabled=false;
-    btn.innerHTML=`<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg> Gửi lên bếp`;
+    showSuccess(I.check,'Đã gửi lên bếp!','Vui lòng đợi trong giây lát');
+    btn.disabled=false;btn.innerHTML=`<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>Gửi lên bếp`;
   },700);
 }
 
 function renderHistory(){
-  const scroll=document.getElementById('history-scroll');
-  const grandEl=document.getElementById('history-grand');
-  if(!history.length){
-    scroll.innerHTML=`<div class="empty-state"><div class="e-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div><p>Chưa có đơn nào<br>được gọi cho bàn này</p></div>`;
-    grandEl.textContent='0đ';return;
-  }
-  scroll.innerHTML='';let grand=0;
-  history.forEach(group=>{
-    const gt=group.items.reduce((s,i)=>s+i.price*i.qty,0);grand+=gt;
-    const div=document.createElement('div');div.className='order-group';
-    div.innerHTML=`
-      <div class="og-header"><span class="og-time">${SVG.clock} ${group.time}</span><span class="og-total">${fmt(gt)}</span></div>
-      ${group.items.map(i=>`
-        <div class="og-item">
-          <span class="og-name">${i.qty}x ${i.name}${i.note?` <em style="color:var(--muted);font-size:10px">(${i.note})</em>`:''}</span>
-          <div class="og-meta"><span class="og-price">${fmt(i.price*i.qty)}</span>
-          <span class="badge ${i.status==='done'?'badge-done':'badge-pending'}">${i.status==='done'?SVG.check+'Xong':'Đang chờ'}</span></div>
-        </div>`).join('')}`;
-    scroll.appendChild(div);
+  const sc=document.getElementById('history-scroll'),ge=document.getElementById('history-grand');
+  if(!hist.length){sc.innerHTML=`<div class="empty-state"><div class="e-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div><p>Chưa có đơn nào</p></div>`;ge.textContent='0đ';return;}
+  sc.innerHTML='';let grand=0;
+  hist.forEach(g=>{
+    const gt=g.items.reduce((s,x)=>s+x.price*x.qty,0);grand+=gt;
+    const d=document.createElement('div');d.className='order-group';
+    d.innerHTML=`<div class="og-header"><span class="og-time">${I.clock} ${g.time}</span><span class="og-total">${fmt(gt)}</span></div>
+    ${g.items.map(x=>`<div class="og-item"><span class="og-name">${x.qty}x ${x.name}${x.note?` <em style="color:var(--muted);font-size:10px">(${x.note})</em>`:''}</span>
+    <div class="og-meta"><span class="og-price">${fmt(x.price*x.qty)}</span><span class="badge ${x.status==='done'?'badge-done':'badge-pending'}">${x.status==='done'?I.check+'Xong':'Đang chờ'}</span></div></div>`).join('')}`;
+    sc.appendChild(d);
   });
-  grandEl.textContent=fmt(grand);
+  ge.textContent=fmt(grand);
 }
 
 function switchTab(tab){
@@ -667,43 +571,36 @@ function switchTab(tab){
 }
 
 function openStaffModal(){
-  selectedReason=null;
-  document.getElementById('staff-note').value='';
-  const grid=document.getElementById('reason-grid');
-  grid.innerHTML='';
-  STAFF_REASONS.forEach((r,i)=>{
-    const btn=document.createElement('button');
-    btn.className='reason-btn';
-    btn.innerHTML=`<span class="r-icon">${r.svg}</span>${r.label}`;
-    btn.onclick=()=>{selectedReason=i;document.querySelectorAll('.reason-btn').forEach((b,j)=>b.classList.toggle('selected',j===i));};
-    grid.appendChild(btn);
+  selReason=null;document.getElementById('staff-note').value='';
+  const g=document.getElementById('reason-grid');g.innerHTML='';
+  REASONS.forEach((r,i)=>{
+    const b=document.createElement('button');b.className='reason-btn';
+    b.innerHTML=`<span class="r-icon">${r.svg}</span>${r.label}`;
+    b.onclick=()=>{selReason=i;document.querySelectorAll('.reason-btn').forEach((x,j)=>x.classList.toggle('selected',j===i));};
+    g.appendChild(b);
   });
   document.getElementById('staff-modal').classList.add('open');
 }
 function closeStaffModal(){document.getElementById('staff-modal').classList.remove('open');}
 function confirmCallStaff(){
   closeStaffModal();
-  const reason=selectedReason!==null?STAFF_REASONS[selectedReason].label:'';
-  const note=document.getElementById('staff-note').value;
-  showSuccess(SVG.bell,'Nhân viên đang đến!',reason+(note?' – '+note:''));
+  const r=selReason!==null?REASONS[selReason].label:'';
+  const n=document.getElementById('staff-note').value;
+  showSuccess(I.bell,'Nhân viên đang đến!',r+(n?' – '+n:''));
 }
 
-function showSuccess(iconSvg,title,msg){
+function showSuccess(icon,title,msg){
   const o=document.getElementById('success-overlay');
-  document.getElementById('success-icon-wrap').innerHTML=iconSvg;
+  document.getElementById('success-icon-wrap').innerHTML=icon;
   document.getElementById('success-title').textContent=title;
   document.getElementById('success-msg').textContent=msg||'';
-  o.classList.add('show');
-  setTimeout(()=>o.classList.remove('show'),2200);
+  o.classList.add('show');setTimeout(()=>o.classList.remove('show'),2200);
 }
-
 function fmt(n){return Number(n).toLocaleString('vi-VN')+'đ';}
-function showToast(msg,type='green'){
+function showToast(msg,type){
   const t=document.getElementById('toast');
-  t.className=`toast ${type}`;void t.offsetWidth;
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
+  t.className=`toast ${type}`;void t.offsetWidth;t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2000);
 }
 
 init();

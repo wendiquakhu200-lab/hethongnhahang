@@ -25,109 +25,113 @@
   --green:#4caf7d;
   --radius:14px;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{height:100%;overflow:hidden;width:100%}
-body{font-family:'Be Vietnam Pro',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100%;overflow:hidden;width:100%;max-width:100vw;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;width:100%;background:var(--bg);color:var(--text);font-family:'Be Vietnam Pro',sans-serif;}
+body{display:flex;flex-direction:column;overflow:hidden;}
 
-/* ── HEADER ── */
+/* HEADER */
 header{
   display:flex;align-items:center;gap:10px;
   padding:12px 16px;
   padding-top:calc(12px + env(safe-area-inset-top));
   background:var(--surface);border-bottom:1px solid var(--border);
-  position:relative;z-index:100;flex-shrink:0;
-  width:100%;overflow:hidden;
+  z-index:100;flex-shrink:0;
 }
 .logo-area{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
 .logo-icon{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-text{font-family:'Playfair Display',serif;font-size:13px;color:var(--gold2);letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.logo-sub{font-size:11px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.logo-text{font-family:'Playfair Display',serif;font-size:13px;color:var(--gold2);}
+.logo-sub{font-size:11px;color:var(--muted);margin-top:1px;}
 .table-pill{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;font-weight:700;font-size:11px;padding:5px 12px;border-radius:999px;white-space:nowrap;flex-shrink:0;}
 .btn-staff{
   display:flex;align-items:center;gap:6px;
   background:transparent;border:1px solid var(--gold);color:var(--gold2);
   padding:7px 12px;border-radius:8px;
   font-family:inherit;font-size:12px;font-weight:600;
-  cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;
 }
-.btn-staff:hover{background:var(--gold-glow);border-color:var(--gold2)}
 
-/* ── APP BODY ── */
-.app-body{display:flex;flex:1;overflow:hidden;width:100%;max-width:100vw;}
+/* APP BODY */
+.app-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
 
-/* ── TABLE SCREEN ── */
-#table-screen{width:100%;padding:32px 20px;overflow-y:auto;overflow-x:hidden;}
-#table-screen h2{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold2);margin-bottom:6px;}
-#table-screen p{color:var(--muted);margin-bottom:24px;font-size:13px}
-.tables-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;max-width:100%;}
+/* ═══ TABLE SCREEN ═══ */
+#table-screen{
+  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:0 0 40px;
+}
+.table-hero{
+  padding:28px 20px 20px;
+  background:linear-gradient(180deg,var(--surface) 0%,transparent 100%);
+  margin-bottom:4px;
+}
+.table-hero h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--gold2);margin-bottom:4px;}
+.table-hero p{color:var(--muted);font-size:13px}
+
+/* Grid theo hàng ngang đẹp */
+.tables-section{padding:0 16px;}
+.section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;margin-top:16px;}
+.tables-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.tables-row.vip-row{grid-template-columns:repeat(2,1fr);}
+
 .table-btn{
-  background:var(--surface2);border:2px solid var(--border);border-radius:var(--radius);
-  padding:18px 10px;color:var(--text);text-align:center;cursor:pointer;
-  transition:all .2s;position:relative;overflow:hidden;width:100%;
+  background:var(--surface2);border:2px solid var(--border);border-radius:16px;
+  padding:16px 8px 14px;color:var(--text);text-align:center;cursor:pointer;
+  transition:all .2s;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
 }
-.table-btn:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,146,42,.12)}
-.table-btn .t-icon{display:flex;justify-content:center;margin-bottom:8px;color:var(--muted)}
-.table-btn .t-name{font-weight:700;font-size:13px;margin-bottom:3px}
-.table-btn .t-status{font-size:11px;color:var(--muted)}
-.table-btn.occupied{border-color:var(--red)}
-.table-btn.occupied .t-status{color:var(--red)}
-.table-btn.occupied .t-dot{display:block!important}
+.table-btn:active{transform:scale(.96);}
+.table-btn.occupied{border-color:var(--red);}
+.table-btn .t-icon{color:var(--muted);}
+.table-btn.vip-btn .t-icon{color:var(--gold);}
+.table-btn .t-name{font-weight:700;font-size:13px;}
+.table-btn .t-status{font-size:10px;color:var(--muted);}
+.table-btn.occupied .t-status{color:var(--red);}
 .t-dot{display:none;position:absolute;top:9px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--red);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+.table-btn.occupied .t-dot{display:block;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
 
-/* ── MAIN ── */
-#main-screen{display:none;width:100%;overflow:hidden}
-.main-layout{display:flex;height:100%;overflow:hidden;width:100%;}
+/* ═══ MAIN SCREEN ═══ */
+#main-screen{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.main-layout{display:flex;flex:1;overflow:hidden;}
 
-/* ── MENU PANEL ── */
+/* MENU PANEL */
 .menu-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);min-width:0;}
 .menu-top{padding:12px 14px 0;flex-shrink:0;}
 .search-wrap{position:relative;margin-bottom:10px;}
 .search-wrap .s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
 #search-input{
   width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;
-  padding:9px 12px 9px 36px;color:var(--text);font-family:inherit;font-size:14px;
-  outline:none;transition:border-color .2s;
+  padding:9px 12px 9px 36px;color:var(--text);font-family:inherit;font-size:14px;outline:none;
 }
-#search-input:focus{border-color:var(--gold)}
 #search-input::placeholder{color:var(--muted)}
 .cat-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;}
 .cat-tabs::-webkit-scrollbar{display:none}
-.cat-tab{flex-shrink:0;padding:6px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;transition:all .15s;white-space:nowrap;}
-.cat-tab.active,.cat-tab:hover{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
-.menu-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 14px 14px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.menu-scroll::-webkit-scrollbar{width:4px}
-.menu-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cat-tab{flex-shrink:0;padding:6px 16px;border-radius:999px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.cat-tab.active{background:var(--gold);border-color:var(--gold);color:#000;font-weight:700;}
+.menu-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 14px 14px;}
 .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
 
-/* ── MENU CARD ── */
-.menu-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .18s;display:flex;flex-direction:column;position:relative;}
-.menu-card:hover{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.5)}
+/* MENU CARD */
+.menu-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:border-color .18s;display:flex;flex-direction:column;}
 .menu-card.unavailable{opacity:.35;pointer-events:none}
 .card-thumb{width:100%;height:110px;background:var(--surface3);display:flex;align-items:center;justify-content:center;}
-.card-thumb svg{color:var(--border)}
 .card-body{padding:9px 11px 11px}
 .card-cat{font-size:10px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px}
 .card-name{font-size:13px;font-weight:600;line-height:1.35;margin-bottom:4px}
 .card-stock{font-size:10px;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:4px}
 .card-footer{display:flex;align-items:center;justify-content:space-between}
 .card-price{font-size:13px;font-weight:700;color:var(--gold2)}
-.card-add{width:28px;height:28px;background:var(--gold);color:#000;border-radius:7px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;}
-.card-add:hover{background:var(--gold2);transform:scale(1.1)}
+.card-add{width:28px;height:28px;background:var(--gold);color:#000;border-radius:7px;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 .card-add svg{pointer-events:none}
 
-/* ── ORDER PANEL ── */
+/* ORDER PANEL */
 .order-panel{width:290px;display:flex;flex-direction:column;background:var(--surface);flex-shrink:0;}
 .order-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;}
-.o-tab{flex:1;padding:13px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;transition:all .15s;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;}
+.o-tab{flex:1;padding:13px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:5px;}
 .o-tab.active{color:var(--gold2);border-bottom-color:var(--gold)}
-.o-tab svg{flex-shrink:0}
 
-/* ── CART VIEW ── */
+/* CART */
 #cart-view{flex:1;display:flex;flex-direction:column;overflow:hidden}
-.cart-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.cart-scroll::-webkit-scrollbar{width:4px}
-.cart-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.cart-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;}
 .empty-state{text-align:center;padding:40px 16px;color:var(--muted);}
 .empty-state .e-icon{display:flex;justify-content:center;margin-bottom:10px;opacity:.35;}
 .empty-state p{font-size:12px;line-height:1.6}
@@ -139,30 +143,22 @@ header{
 .ci-subtotal{font-size:12px;color:var(--gold2);font-weight:700;margin-top:2px}
 .ci-note input{margin-top:5px;width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 7px;font-size:11px;color:var(--text);font-family:inherit;outline:none;}
 .ci-note input::placeholder{color:var(--muted)}
-.ci-note input:focus{border-color:var(--gold)}
 .ci-actions{display:flex;flex-direction:column;align-items:center;gap:3px}
-.qty-btn{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
-.qty-btn:hover{background:var(--gold);border-color:var(--gold);color:#000}
-.qty-btn.minus:hover{background:var(--red);border-color:var(--red);color:#fff}
+.qty-btn{width:22px;height:22px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .qty-num{font-size:13px;font-weight:700}
-.ci-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;transition:color .15s;display:flex;align-items:center;justify-content:center;}
-.ci-del:hover{color:var(--red)}
+.ci-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;display:flex;align-items:center;}
 .cart-footer{padding:10px;border-top:1px solid var(--border);flex-shrink:0;}
 .summary-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
 .summary-row .lbl{color:var(--muted)}
 .summary-total{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:10px;padding-top:7px;border-top:1px solid var(--border);}
 .summary-total .amt{color:var(--gold2);font-size:15px}
-.btn-send{width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px;}
-.btn-send:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--gold-glow)}
+.btn-send{width:100%;padding:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border:none;border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
 .btn-send:disabled{opacity:.4;pointer-events:none}
-.btn-history{width:100%;margin-top:7px;padding:9px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
-.btn-history:hover{border-color:var(--gold);color:var(--gold2)}
+.btn-history{width:100%;margin-top:7px;padding:9px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-size:12px;font-family:inherit;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
 
-/* ── HISTORY VIEW ── */
+/* HISTORY */
 #history-view{flex:1;display:none;flex-direction:column;overflow:hidden}
-.history-scroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
-.history-scroll::-webkit-scrollbar{width:4px}
-.history-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.history-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;}
 .order-group{background:var(--surface2);border-radius:10px;margin-bottom:9px;overflow:hidden;}
 .og-header{padding:9px 11px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
 .og-time{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px;}
@@ -178,70 +174,68 @@ header{
 .history-total{padding:10px 12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-weight:700;font-size:13px;flex-shrink:0;}
 .history-total span:last-child{color:var(--gold2)}
 
-/* ── STAFF MODAL ── */
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:24px 20px;width:min(320px,90vw);transform:scale(.95) translateY(10px);transition:transform .2s;}
-.modal-overlay.open .modal{transform:scale(1) translateY(0)}
+.modal{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:24px 20px;width:min(320px,90vw);transform:scale(.95);transition:transform .2s;}
+.modal-overlay.open .modal{transform:scale(1)}
 .modal-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
 .modal-header-icon{width:36px;height:36px;background:var(--gold-glow);border:1px solid var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--gold2);flex-shrink:0;}
 .modal h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--gold2);}
 .modal-desc{font-size:12px;color:var(--muted);margin-bottom:15px;line-height:1.5}
 .reason-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:15px;}
-.reason-btn{padding:10px 7px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:5px;}
-.reason-btn .r-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:color .15s;}
-.reason-btn:hover,.reason-btn.selected{border-color:var(--gold);background:var(--gold-glow);color:var(--gold2);}
-.reason-btn:hover .r-icon,.reason-btn.selected .r-icon{color:var(--gold2)}
+.reason-btn{padding:10px 7px;background:var(--surface3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.reason-btn .r-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
+.reason-btn.selected{border-color:var(--gold);background:var(--gold-glow);color:var(--gold2);}
+.reason-btn.selected .r-icon{color:var(--gold2)}
 .modal-note{margin-bottom:13px;}
 .modal-note input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:inherit;font-size:13px;outline:none;}
-.modal-note input:focus{border-color:var(--gold)}
 .modal-btns{display:flex;gap:7px;}
-.btn-cancel{flex:1;padding:10px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
-.btn-cancel:hover{color:var(--text)}
-.btn-confirm{flex:1;padding:10px;border-radius:9px;background:var(--gold);border:none;color:#000;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;}
-.btn-confirm:hover{background:var(--gold2)}
+.btn-cancel{flex:1;padding:10px;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--muted);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-confirm{flex:1;padding:10px;border-radius:9px;background:var(--gold);border:none;color:#000;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
 
-/* ── SUCCESS OVERLAY ── */
+/* SUCCESS */
 .success-overlay{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
 .success-overlay.show{opacity:1}
 .success-box{background:var(--surface2);border:1px solid var(--green);border-radius:20px;padding:28px 24px;text-align:center;transform:scale(.9);transition:transform .3s;min-width:200px;}
 .success-overlay.show .success-box{transform:scale(1)}
 .s-icon-wrap{display:flex;justify-content:center;margin-bottom:12px;}
-.s-icon-wrap .s-circle{width:52px;height:52px;border-radius:50%;background:rgba(76,175,125,.15);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;color:var(--green);}
+.s-circle{width:52px;height:52px;border-radius:50%;background:rgba(76,175,125,.15);border:1px solid var(--green);display:flex;align-items:center;justify-content:center;color:var(--green);}
 .success-box h3{font-size:16px;font-weight:700;color:var(--green);margin-bottom:5px}
 .success-box p{font-size:12px;color:var(--muted)}
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;font-weight:600;font-size:13px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:999px;font-weight:600;font-size:13px;z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;}
 .toast.gold{background:var(--gold);color:#000}
 .toast.green{background:var(--green);color:#000}
 .toast.red{background:var(--red);color:#fff}
 .toast.show{opacity:1}
 
-/* ── MOBILE ── */
+/* ═══ MOBILE ═══ */
 @media(max-width:640px){
+  #main-screen{flex:1;overflow:hidden;}
+  .main-layout{flex-direction:column;flex:1;overflow:hidden;position:relative;}
+  .menu-panel{flex:1;border-right:none;overflow:hidden;}
   .order-panel{
-    position:fixed;bottom:0;left:0;right:0;
-    width:100% !important;
-    height:55vh;
-    z-index:200;
-    transform:translateY(calc(100% - 48px));
-    transition:transform .3s ease;
+    position:absolute;bottom:0;left:0;right:0;
+    width:100%;height:58vh;
+    transform:translateY(calc(100% - 46px));
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
     border-top:1px solid var(--border);
     border-radius:18px 18px 0 0;
+    z-index:50;
   }
-  .order-panel.open{transform:translateY(0)}
-  .menu-panel{
-    height:calc(100% - 48px);
-    border-right:none;
-  }
-  .main-layout{
-    flex-direction:column;
-    height:100%;
-    position:relative;
+  .order-panel.open{transform:translateY(0);}
+  /* drag handle */
+  .order-panel::before{
+    content:'';display:block;width:36px;height:4px;
+    background:var(--border);border-radius:2px;
+    margin:10px auto 4px;flex-shrink:0;
   }
   .btn-staff span{display:none}
-  .toast{bottom:calc(55vh + 10px)}
+  .toast{bottom:calc(58vh + 8px)}
+  .tables-row{grid-template-columns:repeat(3,1fr);}
+  .tables-row.vip-row{grid-template-columns:repeat(2,1fr);}
 }
 </style>
 </head>
@@ -272,16 +266,21 @@ header{
 
 <!-- TABLE SCREEN -->
 <div id="table-screen">
-  <h2>Chọn bàn của bạn</h2>
-  <p>Nhấn vào bàn để bắt đầu đặt món</p>
-  <div class="tables-grid" id="tables-grid"></div>
+  <div class="table-hero">
+    <h2>Chọn bàn của bạn</h2>
+    <p>Nhấn vào bàn để bắt đầu đặt món</p>
+  </div>
+  <div class="tables-section">
+    <div class="section-label">Bàn thường</div>
+    <div class="tables-row" id="normal-tables"></div>
+    <div class="section-label">Phòng VIP</div>
+    <div class="tables-row vip-row" id="vip-tables"></div>
+  </div>
 </div>
 
 <!-- MAIN SCREEN -->
 <div id="main-screen">
   <div class="main-layout">
-
-    <!-- Menu -->
     <div class="menu-panel">
       <div class="menu-top">
         <div class="search-wrap">
@@ -297,7 +296,6 @@ header{
       </div>
     </div>
 
-    <!-- Order Panel -->
     <div class="order-panel" id="order-panel">
       <div class="order-tabs" id="order-tabs">
         <button class="o-tab active" data-tab="cart">
@@ -314,18 +312,8 @@ header{
         </button>
       </div>
 
-      <!-- Cart -->
       <div id="cart-view">
-        <div class="cart-scroll" id="cart-scroll">
-          <div class="empty-state">
-            <div class="e-icon">
-              <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-              </svg>
-            </div>
-            <p>Chưa có món nào<br>Thêm món từ thực đơn nhé!</p>
-          </div>
-        </div>
+        <div class="cart-scroll" id="cart-scroll"></div>
         <div class="cart-footer">
           <div id="summary-rows"></div>
           <div class="summary-total">
@@ -347,7 +335,6 @@ header{
         </div>
       </div>
 
-      <!-- History -->
       <div id="history-view">
         <div class="history-scroll" id="history-scroll"></div>
         <div class="history-total">
@@ -356,7 +343,6 @@ header{
         </div>
       </div>
     </div>
-
   </div>
 </div>
 </div>
@@ -384,7 +370,6 @@ header{
   </div>
 </div>
 
-<!-- SUCCESS OVERLAY -->
 <div class="success-overlay" id="success-overlay">
   <div class="success-box">
     <div class="s-icon-wrap"><div class="s-circle" id="success-icon-wrap"></div></div>
@@ -393,7 +378,6 @@ header{
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -423,7 +407,6 @@ const TABLES=[
   {id:7,name:'VIP 1',vip:true,status:'free'},
   {id:8,name:'VIP 2',vip:true,status:'occupied'},
 ];
-
 const MENU=[
   {id:1,name:'Chả giò',cat:'Khai vị',price:40000,qty:20,avail:true},
   {id:2,name:'Gỏi cuốn',cat:'Khai vị',price:35000,qty:15,avail:true},
@@ -440,7 +423,6 @@ const MENU=[
   {id:13,name:'Chè ba màu',cat:'Tráng miệng',price:35000,qty:15,avail:true},
   {id:14,name:'Kem dừa',cat:'Tráng miệng',price:40000,qty:12,avail:true},
 ];
-
 const STAFF_REASONS=[
   {svg:SVG.paper,label:'Thêm khăn giấy'},
   {svg:SVG.utensils,label:'Thêm dụng cụ'},
@@ -449,7 +431,6 @@ const STAFF_REASONS=[
   {svg:SVG.chat,label:'Tư vấn menu'},
   {svg:SVG.dots,label:'Khác'},
 ];
-
 const HISTORY_DATA={
   2:[
     {time:'18:32',items:[{name:'Phở bò',qty:2,price:75000,status:'done'},{name:'Trà đá',qty:2,price:10000,status:'done'}]},
@@ -472,28 +453,48 @@ function init(){
   document.getElementById('staff-modal').addEventListener('click',e=>{
     if(e.target===e.currentTarget)closeStaffModal();
   });
+  // Swipe gesture on order panel
+  initSwipe();
+  renderCart();
+}
+
+function initSwipe(){
+  const panel=document.getElementById('order-panel');
+  let startY=0,startX=0;
+  panel.addEventListener('touchstart',e=>{
+    startY=e.touches[0].clientY;
+    startX=e.touches[0].clientX;
+  },{passive:true});
+  panel.addEventListener('touchend',e=>{
+    const dy=startY-e.changedTouches[0].clientY;
+    const dx=Math.abs(startX-e.changedTouches[0].clientX);
+    if(dx>40)return; // horizontal swipe, ignore
+    if(dy>40) panel.classList.add('open');
+    if(dy<-40) panel.classList.remove('open');
+  },{passive:true});
 }
 
 function renderTables(){
-  const grid=document.getElementById('tables-grid');
-  grid.innerHTML='';
+  const normal=document.getElementById('normal-tables');
+  const vip=document.getElementById('vip-tables');
+  normal.innerHTML='';vip.innerHTML='';
   TABLES.forEach(t=>{
     const btn=document.createElement('button');
-    btn.className='table-btn'+(t.status==='occupied'?' occupied':'');
+    btn.className='table-btn'+(t.status==='occupied'?' occupied':'')+(t.vip?' vip-btn':'');
     btn.innerHTML=`
-      <div class="t-icon" style="color:${t.vip?'var(--gold)':'var(--muted)'}">${t.vip?SVG.vip:SVG.chair}</div>
+      <div class="t-icon">${t.vip?SVG.vip:SVG.chair}</div>
       <div class="t-name">${t.name}</div>
       <div class="t-status">${t.status==='occupied'?'Đang phục vụ':'Trống'}</div>
       <div class="t-dot"></div>`;
     btn.onclick=()=>selectTable(t);
-    grid.appendChild(btn);
+    (t.vip?vip:normal).appendChild(btn);
   });
 }
 
 function selectTable(t){
   selectedTable=t;history=[...(HISTORY_DATA[t.id]||[])];cart=[];
   document.getElementById('table-screen').style.display='none';
-  document.getElementById('main-screen').style.display='block';
+  document.getElementById('main-screen').style.display='flex';
   document.getElementById('hdr-table').style.display='block';
   document.getElementById('hdr-table').textContent=t.name;
   document.getElementById('hdr-sub').textContent=t.name+' • Đang phục vụ';
@@ -556,8 +557,8 @@ function addToCart(e,id){
   const existing=cart.find(c=>c.id===id);
   const curQty=existing?existing.qty:0;
   if(curQty>=item.qty){showToast('Chỉ còn '+item.qty+' phần','red');return;}
-  if(existing){existing.qty++;}
-  else{cart.push({id:item.id,name:item.name,price:item.price,qty:1,note:''});}
+  if(existing)existing.qty++;
+  else cart.push({id:item.id,name:item.name,price:item.price,qty:1,note:''});
   document.getElementById('order-panel').classList.add('open');
   renderCart();
   showToast('Đã thêm '+item.name,'gold');
@@ -571,7 +572,6 @@ function changeQty(idx,delta){
   if(c.qty<=0)cart.splice(idx,1);
   renderCart();
 }
-
 function removeItem(idx){cart.splice(idx,1);renderCart();}
 
 function renderCart(){
@@ -610,7 +610,7 @@ function renderCart(){
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         </button>
         <span class="qty-num">${item.qty}</span>
-        <button class="qty-btn minus" onclick="changeQty(${idx},-1)">
+        <button class="qty-btn" onclick="changeQty(${idx},-1)">
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/></svg>
         </button>
       </div>`;
@@ -622,10 +622,10 @@ function submitOrder(){
   if(!cart.length)return;
   const btn=document.getElementById('btn-send');
   btn.disabled=true;
-  btn.innerHTML=`<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="animation:spin .8s linear infinite"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg> Đang gửi...`;
+  btn.textContent='Đang gửi...';
   cart.forEach(c=>{const m=menuItems.find(m=>m.id===c.id);if(m)m.qty=Math.max(0,m.qty-c.qty);});
   const now=new Date();
-  const t=`${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  const t=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   history.push({time:t,items:cart.map(c=>({name:c.name,qty:c.qty,price:c.price,note:c.note,status:'pending'}))});
   setTimeout(()=>{
     cart=[];renderCart();renderMenu();renderHistory();
@@ -639,12 +639,7 @@ function renderHistory(){
   const scroll=document.getElementById('history-scroll');
   const grandEl=document.getElementById('history-grand');
   if(!history.length){
-    scroll.innerHTML=`<div class="empty-state">
-      <div class="e-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-      </svg></div>
-      <p>Chưa có đơn nào<br>được gọi cho bàn này</p>
-    </div>`;
+    scroll.innerHTML=`<div class="empty-state"><div class="e-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div><p>Chưa có đơn nào<br>được gọi cho bàn này</p></div>`;
     grandEl.textContent='0đ';return;
   }
   scroll.innerHTML='';let grand=0;
@@ -652,19 +647,12 @@ function renderHistory(){
     const gt=group.items.reduce((s,i)=>s+i.price*i.qty,0);grand+=gt;
     const div=document.createElement('div');div.className='order-group';
     div.innerHTML=`
-      <div class="og-header">
-        <span class="og-time">${SVG.clock} ${group.time}</span>
-        <span class="og-total">${fmt(gt)}</span>
-      </div>
+      <div class="og-header"><span class="og-time">${SVG.clock} ${group.time}</span><span class="og-total">${fmt(gt)}</span></div>
       ${group.items.map(i=>`
         <div class="og-item">
           <span class="og-name">${i.qty}x ${i.name}${i.note?` <em style="color:var(--muted);font-size:10px">(${i.note})</em>`:''}</span>
-          <div class="og-meta">
-            <span class="og-price">${fmt(i.price*i.qty)}</span>
-            <span class="badge ${i.status==='done'?'badge-done':'badge-pending'}">
-              ${i.status==='done'?SVG.check+'Xong':'Đang chờ'}
-            </span>
-          </div>
+          <div class="og-meta"><span class="og-price">${fmt(i.price*i.qty)}</span>
+          <span class="badge ${i.status==='done'?'badge-done':'badge-pending'}">${i.status==='done'?SVG.check+'Xong':'Đang chờ'}</span></div>
         </div>`).join('')}`;
     scroll.appendChild(div);
   });
@@ -710,7 +698,6 @@ function showSuccess(iconSvg,title,msg){
 }
 
 function fmt(n){return Number(n).toLocaleString('vi-VN')+'đ';}
-
 function showToast(msg,type='green'){
   const t=document.getElementById('toast');
   t.className=`toast ${type}`;void t.offsetWidth;
@@ -718,10 +705,6 @@ function showToast(msg,type='green'){
   clearTimeout(toastTimer);
   toastTimer=setTimeout(()=>t.classList.remove('show'),2000);
 }
-
-const style=document.createElement('style');
-style.textContent='@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';
-document.head.appendChild(style);
 
 init();
 </script>

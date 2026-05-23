@@ -225,6 +225,12 @@ header{
   .main-layout{flex-direction:column;height:calc(100vh - 57px)}
   .btn-staff span{display:none}
 }
+#table-screen{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
 </style>
 </head>
 <body>

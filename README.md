@@ -867,18 +867,15 @@ async function loadTables() {
   });
 }
 async function init() {
-  const tableId = getTableFromURL();
-
-  await loadTables();   // đã có tablesData
+  await loadTables();
   await loadMenu();
   setupCartTouch();
 
-  if (tableId) {
-    const table = tablesData.find(t => t.id == tableId);
+  // 👇 auto chọn bàn đầu tiên
+  const table = tablesData[0];
 
-    if (table) {
-      selectTable(table); // 👈 auto vào bàn
-    }
+  if (table) {
+    selectTable(table);
   }
 }
 
